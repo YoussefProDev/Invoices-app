@@ -7,25 +7,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Address {
+  id        String @id @default(cuid())
+  street    String
+  number    String
+  cap       String
+  comune    String
+  provincia String
+  nazione   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User[]
+  Client    Client[]
+}
+
 model User {
   id            String          @id @default(cuid())
   firstName     String?
   lastName      String?
-  address       String?
+  addressId     String? // Foreign key to Address
   email         String          @unique
   emailVerified DateTime?       @map("email_verified")
   password      String?
   image         String?
   accounts      Account[]
   sessions      Session[]
-  // Optional for WebAuthn support
   Authenticator Authenticator[]
   invoices      Invoice[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  address Address? @relation(fields: [addressId], references: [id])
+
   @@map("users")
+}
+
+model Client {
+  id                 String    @id @default(cuid())
+  name               String
+  addressId          String // Foreign key to Address
+  codiceDestinatario String?
+  pecDestinatario    String?
+  email              String?   @unique
+  emailVerified      DateTime? @map("email_verified")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  address Address @relation(fields: [addressId], references: [id])
+
+  @@map("clients")
 }
 
 model Account {
@@ -55,7 +88,7 @@ model PasswordResetToken {
   token   String   @unique
   expires DateTime
 
-  @@unique([email, token]) // Ensures unique reset token per email
+  @@unique([email, token])
 }
 
 model Session {
@@ -74,10 +107,9 @@ model VerificationToken {
   token   String   @unique
   expires DateTime
 
-  @@unique([email, token]) // Ensures unique token per email
+  @@unique([email, token])
 }
 
-// Optional for WebAuthn support
 model Authenticator {
   credentialID         String  @unique
   userId               String
@@ -94,34 +126,105 @@ model Authenticator {
 }
 
 model Invoice {
-  id String @id @default(uuid())
+  id             String          @id @default(uuid())
+  invoiceName    String
+  total          Int
+  status         InvoiceStatus
+  date           DateTime
+  dueDate        Int
+  fromName       String
+  fromEmail      String
+  fromAddress    String
+  clientName     String
+  clientEmail    String
+  clientAddress  String
+  currency       String
+  invoiceNumber  Int
+  note           String?
+  paymentDetails PaymentDetails?
+  regimeFiscale  RegimeFiscale
+  invoiceType    InvoiceType
+  services       Service[]
+  year           Int
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
-  invoiceName   String
-  total         Int
-  status        InvoiceStatus
-  date          DateTime
-  dueDate       Int
-  fromName      String
-  fromEmail     String
-  fromAddress   String
-  clientName    String
-  clientEmail   String
-  clientAddress String
-  currency      String
-  invoiceNumber Int
-  note          String?
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
 
-  invoiceItemDescription String
-  invoiceItemQuantity    Int
-  invoiceItemRate        Int
+  @@unique([invoiceNumber, year]) // Ensure unique invoice number per year
+}
+
+model Service {
+  id           String    @id @default(cuid())
+  description  String
+  quantity     Int
+  pricePerUnit Int
+  ivaRate      Float
+  nature       String
+  startDate    DateTime?
+  endDate      DateTime?
+  totalPrice   Int // Total price excluding VAT
+  invoiceId    String
+  invoice      Invoice   @relation(fields: [invoiceId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  User      User?    @relation(fields: [userId], references: [id])
-  userId    String?
+}
+
+model PaymentDetails {
+  id          String  @id @default(cuid())
+  iban        String?
+  bankName    String?
+  beneficiary String?
+
+  invoiceId String  @unique
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 }
 
 enum InvoiceStatus {
   PAID
   PENDING
+}
+
+enum RegimeFiscale {
+  ORDINARIO
+  FORFETTARIO
+  MINIMI
+  IVA_PER_CASSA
+  EDITORIA
+  IVA_PER_CASSA_PA
+  AGRICOLTURA
+  AGENZIE_VIAGGI
+  VENDITA_SALI_TABACCHI
+  BENI_USATI
+  INTRATTENIMENTI
+  AGRITURISMO
+  VENDITE_DOMICILIO
+  COMMERCIO_FIAMMIFERI
+  GESTIONE_SERVIZI_TELEFONIA
+  RIVENDITA_DOCUMENTI
+  AGENZIE_VENDITE_ASTA
+  ALTRO
+}
+
+enum InvoiceType {
+  FATTURA
+  ACCONTO_FATTURA
+  ACCONTO_PARCELLA
+  NOTA_CREDITO
+  NOTA_DEBITO
+  PARCELLA
+  INTEGRAZIONE_FATTURA_REVERSE_CHARGE_INTERNO
+  INTEGRAZIONE_AUTOFATTURA_SERVIZI_ESTERO
+  INTEGRAZIONE_BENI_INTRACOMUNITARI
+  INTEGRAZIONE_BENI_EX_ART_17
+  AUTOFATTURA_REGOLARIZZAZIONE
+  AUTOFATTURA_SPLAFONAMENTO
+  ESTRAZIONE_BENI_DEPOSITO_IVA
+  FATTURA_DIFFERITA_A
+  FATTURA_DIFFERITA_B
+  CESSIONE_BENI_AMMORTIZZABILI
+  AUTOCONSUMO_CESSIONI_GRATUITE
+  ACQUISTI_SAN_MARINO
 }

@@ -3,7 +3,7 @@ import Link from "next/link";
 import Logo from "@/public/logo.png";
 import { buttonVariants } from "@/components/ui/button";
 import { RainbowButton } from "@/components/ui/rainbow-button";
-import { LOGIN_PAGE } from "@/routes";
+import { DEFAULT_LOGIN_REDIRECT, LOGIN_PAGE } from "@/routes";
 import { requireUser } from "@/utils/hooks";
 import { auth } from "@/auth";
 
@@ -18,11 +18,15 @@ export async function Navbar() {
           Invoice<span className="text-blue-500">Marshal</span>
         </h3>
       </Link>
-      <Link href="/auth/login">
-        <RainbowButton>
-          {isAuthenticated ? "Dashboard" : "Get Started"}
-        </RainbowButton>
-      </Link>
+      {isAuthenticated ? (
+        <Link href={DEFAULT_LOGIN_REDIRECT}>
+          <RainbowButton>Dashboard</RainbowButton>
+        </Link>
+      ) : (
+        <Link href={LOGIN_PAGE}>
+          <RainbowButton>Get Started</RainbowButton>{" "}
+        </Link>
+      )}
     </div>
   );
 }

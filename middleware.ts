@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { authRoutes, publicRoutes } from "./routes";
+import { DEFAULT_LOGIN_REDIRECT, authRoutes, publicRoutes } from "./routes";
 
 export default auth((req) => {
   const { pathname, origin } = req.nextUrl;
@@ -12,6 +12,11 @@ export default auth((req) => {
   if (!isAuthenticated && !isPublicRoute && !isAuthRoute) {
     // Reindirizza alla pagina pubblica principale
     const newUrl = new URL("/", origin);
+    return Response.redirect(newUrl);
+  }
+  if (isAuthenticated && isAuthRoute) {
+    // Reindirizza alla pagina pubblica principale
+    const newUrl = new URL(DEFAULT_LOGIN_REDIRECT, origin);
     return Response.redirect(newUrl);
   }
 });

@@ -2,7 +2,7 @@ import { RainbowButton } from "@/components/ui/rainbow-button";
 import Image from "next/image";
 import Link from "next/link";
 import HeroImage from "@/public/hero.png";
-import { LOGIN_PAGE } from "@/routes";
+import { DEFAULT_LOGIN_REDIRECT, LOGIN_PAGE } from "@/routes";
 import { requireUser } from "@/utils/hooks";
 import { auth } from "@/auth";
 
@@ -28,11 +28,15 @@ export async function Hero() {
         </p>
 
         <div className="mt-7 mb-12">
-          <Link href={LOGIN_PAGE}>
-            <RainbowButton>
-              {isAuthenticated ? "Dashboard" : "Get Unlimted Access"}
-            </RainbowButton>
-          </Link>
+          {isAuthenticated ? (
+            <Link href={DEFAULT_LOGIN_REDIRECT}>
+              <RainbowButton>Dashboard</RainbowButton>
+            </Link>
+          ) : (
+            <Link href={LOGIN_PAGE}>
+              <RainbowButton>Get Started</RainbowButton>{" "}
+            </Link>
+          )}
         </div>
       </div>
 
