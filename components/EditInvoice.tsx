@@ -49,8 +49,10 @@ export function EditInvoice({ data }: iAppProps) {
   });
 
   const [selectedDate, setSelectedDate] = useState(data.date);
-  const [rate, setRate] = useState(data.invoiceItemRate.toString());
-  const [quantity, setQuantity] = useState(data.invoiceItemQuantity.toString());
+  // const [rate, setRate] = useState(data.invoiceItemRate.toString()); //! check later
+  // const [quantity, setQuantity] = useState(data.invoiceItemQuantity.toString());//!check later
+  const [rate, setRate] = useState("2"); //! check later
+  const [quantity, setQuantity] = useState("4"); //!check later
   const [currency, setCurrency] = useState(data.currency);
 
   const calcualteTotal = (Number(quantity) || 0) * (Number(rate) || 0);
@@ -259,7 +261,7 @@ export function EditInvoice({ data }: iAppProps) {
                 <Textarea
                   name={fields.invoiceItemDescription.name}
                   key={fields.invoiceItemDescription.key}
-                  defaultValue={data.invoiceItemDescription}
+                  // defaultValue={data.invoiceItemDescription} //! heck later
                   placeholder="Item name & description"
                 />
                 <p className="text-red-500 text-sm">

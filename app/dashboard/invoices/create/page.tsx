@@ -11,7 +11,6 @@ async function getUserData(userId: string) {
     select: {
       firstName: true,
       lastName: true,
-      address: true,
       email: true,
     },
   });
@@ -25,7 +24,7 @@ export default async function InvoiceCreationRoute() {
   return (
     <CreateInvoice
       lastName={data?.lastName as string}
-      address={data?.address as string}
+      address={"ciao"} //? check later
       email={data?.email as string}
       firstName={data?.firstName as string}
     />

@@ -27,7 +27,6 @@ export const register = async (formData: z.infer<typeof RegisterSchema>) => {
     data: {
       firstName,
       lastName,
-      address,
       email,
       password: hashedPassword,
     },

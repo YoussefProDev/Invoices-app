@@ -30,9 +30,12 @@ export async function createInvoice(prevState: any, formData: FormData) {
       fromAddress: submission.value.fromAddress,
       fromEmail: submission.value.fromEmail,
       fromName: submission.value.fromName,
-      invoiceItemDescription: submission.value.invoiceItemDescription,
-      invoiceItemQuantity: submission.value.invoiceItemQuantity,
-      invoiceItemRate: submission.value.invoiceItemRate,
+      invoiceType: "ACCONTO_FATTURA", //!check later
+      regimeFiscale: "AGENZIE_VENDITE_ASTA", //!check later
+      year: 2024, //!check later
+      // invoiceItemDescription: submission.value.invoiceItemDescription,
+      // invoiceItemQuantity: submission.value.invoiceItemQuantity,
+      // invoiceItemRate: submission.value.invoiceItemRate,
       invoiceName: submission.value.invoiceName,
       invoiceNumber: submission.value.invoiceNumber,
       status: submission.value.status,
@@ -94,9 +97,9 @@ export async function editInvoice(prevState: any, formData: FormData) {
       fromAddress: submission.value.fromAddress,
       fromEmail: submission.value.fromEmail,
       fromName: submission.value.fromName,
-      invoiceItemDescription: submission.value.invoiceItemDescription,
-      invoiceItemQuantity: submission.value.invoiceItemQuantity,
-      invoiceItemRate: submission.value.invoiceItemRate,
+      // invoiceItemDescription: submission.value.invoiceItemDescription,
+      // invoiceItemQuantity: submission.value.invoiceItemQuantity,
+      // invoiceItemRate: submission.value.invoiceItemRate,
       invoiceName: submission.value.invoiceName,
       invoiceNumber: submission.value.invoiceNumber,
       status: submission.value.status,

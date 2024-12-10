@@ -29,9 +29,9 @@ export async function GET(
       clientEmail: true,
       date: true,
       dueDate: true,
-      invoiceItemDescription: true,
-      invoiceItemQuantity: true,
-      invoiceItemRate: true,
+      // invoiceItemDescription: true,
+      // invoiceItemQuantity: true,
+      // invoiceItemRate: true,
       total: true,
       note: true,
     },
@@ -91,16 +91,16 @@ export async function GET(
 
   // Item Details
   pdf.setFont("helvetica", "normal");
-  pdf.text(data.invoiceItemDescription, 20, 110);
-  pdf.text(data.invoiceItemQuantity.toString(), 100, 110);
-  pdf.text(
-    formatCurrency({
-      amount: data.invoiceItemRate,
-      currency: data.currency as any,
-    }),
-    130,
-    110
-  );
+  // pdf.text(data.invoiceItemDescription, 20, 110);
+  // pdf.text(data.invoiceItemQuantity.toString(), 100, 110);
+  // pdf.text(
+  //   formatCurrency({
+  //     amount: data.invoiceItemRate,
+  //     currency: data.currency as any,
+  //   }),
+  //   130,
+  //   110
+  // );
   pdf.text(
     formatCurrency({ amount: data.total, currency: data.currency as any }),
     160,
