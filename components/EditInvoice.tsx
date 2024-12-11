@@ -27,7 +27,7 @@ import { parseWithZod } from "@conform-to/zod";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { Prisma } from "@prisma/client";
 import { editInvoice } from "@/actions/invoices";
-import { invoiceSchema } from "@/schemas";
+import { InvoiceSchema } from "@/schemas";
 
 interface iAppProps {
   data: Prisma.InvoiceGetPayload<{}>;
@@ -40,7 +40,7 @@ export function EditInvoice({ data }: iAppProps) {
 
     onValidate({ formData }) {
       return parseWithZod(formData, {
-        schema: invoiceSchema,
+        schema: InvoiceSchema,
       });
     },
 

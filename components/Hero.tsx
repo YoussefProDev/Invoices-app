@@ -34,7 +34,7 @@ export async function Hero() {
             </Link>
           ) : (
             <Link href={LOGIN_PAGE}>
-              <RainbowButton>Get Started</RainbowButton>{" "}
+              <RainbowButton>Get Unlimted Access</RainbowButton>{" "}
             </Link>
           )}
         </div>

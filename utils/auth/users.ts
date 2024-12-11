@@ -7,6 +7,9 @@ export const getUserByEmail = async (email: string) => {
       where: {
         email,
       },
+      include: {
+        BusinessDetail: true,
+      },
     });
     if (!user) return null;
     return user;
@@ -20,6 +23,9 @@ export const getUserById = async (id: string) => {
     const user = await db.user.findUnique({
       where: {
         id,
+      },
+      include: {
+        BusinessDetail: true,
       },
     });
     return user;

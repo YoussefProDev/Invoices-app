@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+export const AddressSchema = z.object({
+  street: z.string().min(1, "Street is required"),
+  number: z.string().min(1, "Number is required"),
+  cap: z.string().min(1, "CAP is required"),
+  comune: z.string().min(1, "Comune is required"),
+  provincia: z.string().min(1, "Provincia is required"),
+});
 export const onBoardingSchema = z.object({
   companyName: z.string().min(1, "Company Name is required"),
   vatNumber: z
@@ -17,6 +24,7 @@ export const onBoardingSchema = z.object({
       new RegExp(/^([A-Z0-9_+-]+\.?)*[A-Z0-9_+-]@(pec.)+[A-Z]{2,}$/i),
       "Invalid  address"
     ),
+
   street: z.string().min(1, "Street is required"),
   number: z.string().min(1, "Number is required"),
   cap: z.string().min(1, "CAP is required"),

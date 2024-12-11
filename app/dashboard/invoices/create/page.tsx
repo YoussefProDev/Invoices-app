@@ -1,4 +1,5 @@
 import { CreateInvoice } from "@/components/CreateInvoice";
+import InvoiceForm from "@/components/InvoiceForm";
 import { db } from "@/lib/db";
 import { requireUser } from "@/utils/hooks";
 import { redirect } from "next/navigation";
@@ -21,12 +22,13 @@ async function getUserData(userId: string) {
 export default async function InvoiceCreationRoute() {
   const session = await requireUser();
   const data = await getUserData(session.user?.id as string);
-  return (
-    <CreateInvoice
-      lastName={data?.lastName as string}
-      address={"ciao"} //? check later
-      email={data?.email as string}
-      firstName={data?.firstName as string}
-    />
-  );
+  return <InvoiceForm />;
+  // return (
+  //   <CreateInvoice
+  //     lastName={data?.lastName as string}
+  //     address={"ciao"} //? check later
+  //     email={data?.email as string}
+  //     firstName={data?.firstName as string}
+  //   />
+  // );
 }
