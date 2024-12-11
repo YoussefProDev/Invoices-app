@@ -26,8 +26,9 @@ import { SubmitButton } from "./SubmitButtons";
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { formatCurrency } from "@/utils/formatCurrency";
-import { invoiceSchema } from "@/schemas";
+
 import { createInvoice } from "@/actions/invoices";
+import { InvoiceSchema } from "@/schemas";
 
 interface iAppProps {
   firstName: string;
@@ -48,7 +49,7 @@ export function CreateInvoice({
 
     onValidate({ formData }) {
       return parseWithZod(formData, {
-        schema: invoiceSchema,
+        schema: InvoiceSchema,
       });
     },
 

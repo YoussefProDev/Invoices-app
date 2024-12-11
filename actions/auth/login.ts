@@ -56,10 +56,10 @@ export const login = async (formData: z.infer<typeof LoginSchema>) => {
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      console.log("error: ", error.type);
+      // console.log("error: ", error.type, error);
       switch (error.type) {
         case "CredentialsSignin":
-          return { error: "Invalid Credentials from SIGN IN" };
+          return { error: "Invalid Credentials" };
         case "AccessDenied":
           return { error: "Email not verified" };
         default:

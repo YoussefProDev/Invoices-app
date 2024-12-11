@@ -22,6 +22,11 @@ export const NEW_VERIFICATION_PAGE: string = "/auth/new-verification";
  */
 export const ERROR_PAGE: string = "/auth/error";
 /**
+ * onBoarding page
+ * @type {string}
+ */
+export const ONBOARDING_PAGE: string = "/onboarding";
+/**
  * An Array of routes used for authentication
  * These routes will redirect logged in users to /settings
  * @type {string[]}

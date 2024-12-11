@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
-import { LOGIN_PAGE } from "@/routes";
+import { db } from "@/lib/db";
+import { LOGIN_PAGE, ONBOARDING_PAGE } from "@/routes";
 import { redirect } from "next/navigation";
 
 export async function requireUser() {
@@ -10,4 +11,29 @@ export async function requireUser() {
   }
 
   return session;
+}
+
+export async function requireBuisnessDetail() {
+  const session = await requireUser();
+
+  if (!session?.user) {
+    redirect(LOGIN_PAGE);
+  }
+  const { id } = session.user;
+  const user = await db.user.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      BusinessDetail: true,
+    },
+  });
+  if (
+    !user?.BusinessDetail ||
+    Object.values(user.BusinessDetail).some((value) => !value)
+  ) {
+    redirect(ONBOARDING_PAGE);
+  }
+
+  return user;
 }

@@ -6,13 +6,13 @@ import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { resend } from "@/lib/resend";
-import { invoiceSchema } from "@/schemas";
+import { InvoiceSchema } from "@/schemas";
 
 export async function createInvoice(prevState: any, formData: FormData) {
   const session = await requireUser();
 
   const submission = parseWithZod(formData, {
-    schema: invoiceSchema,
+    schema: InvoiceSchema,
   });
 
   if (submission.status !== "success") {

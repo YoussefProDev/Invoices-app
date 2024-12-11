@@ -14,7 +14,6 @@ model Address {
   cap       String
   comune    String
   provincia String
-  nazione   String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -25,8 +24,8 @@ model Address {
 
 model User {
   id            String          @id @default(uuid())
-  firstName     String?
-  lastName      String?
+  firstName     String
+  lastName      String
   email         String          @unique
   emailVerified DateTime?       @map("email_verified")
   password      String?
@@ -52,8 +51,7 @@ model BusinessDetail {
 
   addressId String? // Foreign key to Address
   address   Address? @relation(fields: [addressId], references: [id])
-  phone     String?
-  email     String?
+  pec       String
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id])
 

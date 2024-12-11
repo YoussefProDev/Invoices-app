@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { useFormStatus } from "react-dom";
 import { Loader2 } from "lucide-react";
@@ -15,13 +13,13 @@ interface iAppProps {
     | "link"
     | null
     | undefined;
+  isPending?: boolean;
 }
 
-export function SubmitButton({ text, variant }: iAppProps) {
-  const { pending } = useFormStatus();
+export function SubmitButton({ text, variant, isPending }: iAppProps) {
   return (
     <>
-      {pending ? (
+      {isPending ? (
         <Button disabled className="w-full" variant={variant}>
           <Loader2 className="size-4 mr-2 animate-spin" /> Please wait...
         </Button>
