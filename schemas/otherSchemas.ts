@@ -25,20 +25,15 @@ export const onBoardingSchema = z.object({
       "Invalid  address"
     ),
 
-  street: z.string().min(1, "Street is required"),
-  number: z.string().min(1, "Number is required"),
-  cap: z.string().min(1, "CAP is required"),
-  comune: z.string().min(1, "Comune is required"),
-  provincia: z.string().min(1, "Provincia is required"),
+  address: AddressSchema,
 });
 
 export const ClientSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  addressId: z.string().min(1, "Address ID is required"),
+  address: AddressSchema,
   codiceDestinatario: z.string().optional(),
   pecDestinatario: z.string().email("Invalid PEC address").optional(),
   email: z.string().email("Invalid email address").optional(),
-  emailVerified: z.date().optional(),
 });
 
 export const InvoiceSchema = z.object({
@@ -47,12 +42,12 @@ export const InvoiceSchema = z.object({
   status: z.enum(["PAID", "PENDING"]),
   date: z.date(),
   dueDate: z.number().positive("Due Date must be positive"),
-  fromName: z.string().min(1, "From Name is required"),
-  fromEmail: z.string().email("Invalid email address"),
-  fromAddress: z.string().min(1, "From Address is required"),
+  // fromName: z.string().min(1, "From Name is required"),
+  // fromEmail: z.string().email("Invalid email address"),
+  // fromAddress: z.string().min(1, "From Address is required"),
   clientName: z.string().min(1, "Client Name is required"),
   clientEmail: z.string().email("Invalid email address"),
-  clientAddress: z.string().min(1, "Client Address is required"),
+  clientAddress: AddressSchema,
   currency: z.string().min(1, "Currency is required"),
   invoiceNumber: z.number().positive("Invoice Number must be positive"),
   note: z.string().optional(),

@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
   FormControl,
@@ -7,23 +8,20 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
-import { UseFormReturn } from "react-hook-form";
+import { UseFormReturn, useFormContext } from "react-hook-form";
 import { z } from "zod";
 
-const AddressForm = <T extends z.ZodTypeAny>({
-  isPending,
-  form,
-}: {
-  isPending: boolean;
-  form: UseFormReturn<z.infer<T>>;
-}) => {
+const AddressForm = ({ campo }: { campo: string }) => {
+  const form = useFormContext();
+  const isPending = form.formState.isLoading;
+
   return (
     <div className="space-y-4">
       {/* Street & Number */}
       <div className="flex space-x-4">
         <FormField
           control={form.control}
-          name="street"
+          name={`${campo}.street`}
           render={({ field }) => (
             <FormItem className="flex-grow">
               <FormLabel>Street:</FormLabel>
@@ -41,7 +39,7 @@ const AddressForm = <T extends z.ZodTypeAny>({
         />
         <FormField
           control={form.control}
-          name="number"
+          name={`${campo}.number`}
           render={({ field }) => (
             <FormItem className="w-24">
               <FormLabel>Number:</FormLabel>
@@ -62,9 +60,9 @@ const AddressForm = <T extends z.ZodTypeAny>({
       <div className="flex space-x-4">
         <FormField
           control={form.control}
-          name="cap"
+          name={`${campo}.cap`}
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex-grow">
               <FormLabel>CAP:</FormLabel>
               <FormControl>
                 <Input
@@ -80,9 +78,9 @@ const AddressForm = <T extends z.ZodTypeAny>({
         />
         <FormField
           control={form.control}
-          name="comune"
+          name={`${campo}.comune`}
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex-grow">
               <FormLabel>Comune:</FormLabel>
               <FormControl>
                 <Input
@@ -98,7 +96,7 @@ const AddressForm = <T extends z.ZodTypeAny>({
         />
         <FormField
           control={form.control}
-          name="provincia"
+          name={`${campo}.provincia`}
           render={({ field }) => (
             <FormItem className="w-24">
               <FormLabel>Provincia:</FormLabel>

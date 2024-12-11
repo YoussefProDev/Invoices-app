@@ -24,11 +24,7 @@ export const onBoarding = async (
     pec,
     taxCode,
     vatNumber,
-    cap,
-    comune,
-    number,
-    provincia,
-    street,
+    address: { cap, comune, number, provincia, street },
   } = validatedFields.data;
 
   // Verifica della sessione utente
