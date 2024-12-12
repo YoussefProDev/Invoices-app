@@ -6,8 +6,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import { Input } from "./ui/input";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { UseFormReturn, useFormContext } from "react-hook-form";
 import { z } from "zod";
 
@@ -17,7 +17,7 @@ const AddressForm = ({ campo }: { campo: string }) => {
 
   return (
     <div className="space-y-4">
-      {/* Street & Number */}
+      {/* Street */}
       <div className="flex space-x-4">
         <FormField
           control={form.control}
@@ -31,24 +31,6 @@ const AddressForm = ({ campo }: { campo: string }) => {
                   {...field}
                   type="text"
                   placeholder="Main Street"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name={`${campo}.number`}
-          render={({ field }) => (
-            <FormItem className="w-24">
-              <FormLabel>Number:</FormLabel>
-              <FormControl>
-                <Input
-                  disabled={isPending}
-                  {...field}
-                  type="text"
-                  placeholder="123"
                 />
               </FormControl>
               <FormMessage />

@@ -1,5 +1,5 @@
 import { CreateInvoice } from "@/components/CreateInvoice";
-import InvoiceForm from "@/components/InvoiceForm";
+import InvoiceForm from "@/components/invoice/InvoiceForm";
 import { db } from "@/lib/db";
 import { requireUser } from "@/utils/hooks";
 import { redirect } from "next/navigation";
