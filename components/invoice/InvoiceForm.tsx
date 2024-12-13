@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState } from "react";
 import z from "zod";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 // shadcn UI components
@@ -16,28 +16,136 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-// schema
-import { InvoiceSchema } from "@/schemas";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
+import { Card, CardContent } from "../ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
-import AddressForm from "@/components/invoice/AddressForm";
 import { SubmitButton } from "@/components/SubmitButtons";
 import ClientForm from "./ClientForm";
-import { Label } from "../ui/label";
-import UserForm from "./UserForm";
-import { Textarea } from "../ui/textarea";
+
+// Address Form Component
+export const AddressForm = ({ campo }) => {
+  const { control } = useFormContext();
+
+  return (
+    <div className="grid gap-4 grid-cols-2">
+      <FormField
+        control={control}
+        name={`${campo}.street`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Street:</FormLabel>
+            <FormControl>
+              <Input {...field} placeholder="Enter Street" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name={`${campo}.comune`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Comune:</FormLabel>
+            <FormControl>
+              <Input {...field} placeholder="Enter Comune" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name={`${campo}.provincia`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Provincia:</FormLabel>
+            <FormControl>
+              <Input {...field} placeholder="Enter Provincia" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name={`${campo}.cap`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>CAP:</FormLabel>
+            <FormControl>
+              <Input {...field} placeholder="Enter CAP" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+  );
+};
+
+// // Service Form Component
+// export const ServiceForm = ({ campo }) => {
+//   const { control } = useFormContext();
+
+//   return (
+//     <div className="space-y-4">
+//       <FormField
+//         control={control}
+//         name={`${campo}.serviceName`}
+//         render={({ field }) => (
+//           <FormItem>
+//             <FormLabel>Service Name:</FormLabel>
+//             <FormControl>
+//               <Input {...field} placeholder="Enter Service Name" />
+//             </FormControl>
+//             <FormMessage />
+//           </FormItem>
+//         )}
+//       />
+//       <FormField
+//         control={control}
+//         name={`${campo}.serviceDescription`}
+//         render={({ field }) => (
+//           <FormItem>
+//             <FormLabel>Description:</FormLabel>
+//             <FormControl>
+//               <Textarea {...field} placeholder="Enter Service Description" />
+//             </FormControl>
+//             <FormMessage />
+//           </FormItem>
+//         )}
+//       />
+//       <FormField
+//         control={control}
+//         name={`${campo}.servicePrice`}
+//         render={({ field }) => (
+//           <FormItem>
+//             <FormLabel>Price:</FormLabel>
+//             <FormControl>
+//               <Input
+//                 type="number"
+//                 {...field}
+//                 placeholder="Enter Service Price"
+//               />
+//             </FormControl>
+//             <FormMessage />
+//           </FormItem>
+//         )}
+//       />
+//     </div>
+//   );
+// };
 
 const InvoiceForm = () => {
-  const form = useForm<z.infer<typeof InvoiceSchema>>({
-    resolver: zodResolver(InvoiceSchema),
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const form = useForm({
+    resolver: zodResolver(z.object({})),
     defaultValues: {
-      total: "3",
-      status: "PAID",
       date: new Date(),
       client: {
         clientName: "prova",
@@ -45,208 +153,149 @@ const InvoiceForm = () => {
         codiceDestinatario: "dddd",
         pecDestinatario: "ccdd",
         clientAddress: {
-          cap: "prova",
+          cap: "20222",
           comune: "evvai",
           provincia: "ok",
           street: "fffff",
         },
       },
-      invoiceNumber: 44,
+      invoiceNumber: "44",
       note: "prova",
       regimeFiscale: "ORDINARIO",
       invoiceType: "FATTURA",
+      total: "3",
+      status: "PAID",
     },
   });
 
-  const [isPending, startTransition] = useTransition();
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const steps = [
+    { id: 0, label: "Client", component: <ClientForm campo="client" /> },
+    {
+      id: 1,
+      label: "Invoice",
+      component: (
+        <InvoiceStep
+          form={form}
+          isPending={false}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+        />
+      ),
+    },
+    { id: 2, label: "Summary", component: <SummaryStep /> },
+  ];
 
-  const onSubmit = (formData: z.infer<typeof InvoiceSchema>) => {
-    startTransition(async () => {
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          console.log("Submitted data:", formData);
-          resolve("done");
-        }, 3000);
-      });
-    });
+  const handleStepChange = (stepIndex) => {
+    setCurrentStep(stepIndex);
+    const container = document.querySelector(".snap-container");
+    if (container) {
+      const stepElement = container.children[stepIndex];
+      stepElement.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const onSubmit = (formData: FormData) => {
+    console.log("ok", formData);
   };
 
   return (
-    <FormProvider {...form}>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Label>Clients:</Label>
-          <ClientForm campo="client" />
+    <Card className="w-full max-w-4xl mx-auto">
+      <CardContent className="p-6">
+        {/* Step Buttons */}
+        <div className="flex justify-between mb-4">
+          {steps.map((step) => (
+            <Button
+              key={step.id}
+              onClick={() => handleStepChange(step.id)}
+              variant={currentStep === step.id ? "default" : "outline"}
+            >
+              {step.label}
+            </Button>
+          ))}
+        </div>
 
-          <div className="flex flex-col space-y-6 lg:flex-row lg:space-x-4 pt-6">
-            {/* Invoice Type */}
-            <FormField
-              control={form.control}
-              name="invoiceType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Invoice Type:</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Enter Invoice Type"
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {/* Step Content */}
+        <FormProvider {...form}>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <div className="snap-container w-full flex overflow-x-scroll snap-x snap-mandatory scroll-smooth">
+                {steps.map((step) => (
+                  <div
+                    key={step.id}
+                    className="w-full flex-none snap-start h-full flex justify-center items-center px-4"
+                    style={{ minWidth: "100%" }}
+                  >
+                    {step.component}
+                  </div>
+                ))}
+              </div>
 
-            {/* Regime Fiscale */}
-            <FormField
-              control={form.control}
-              name="regimeFiscale"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Regime Fiscale:</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Enter Regime Fiscale"
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="flex flex-col space-y-6 lg:flex-row lg:space-x-4">
-            {/* Invoice Number */}
-            <FormField
-              control={form.control}
-              name="invoiceNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Invoice Number:</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      placeholder="Enter Invoice Number"
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Date */}
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date:</FormLabel>
-                  <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full text-left justify-start"
-                        >
-                          <CalendarIcon className="mr-2" />
-                          {selectedDate ? (
-                            new Intl.DateTimeFormat("en-US", {
-                              dateStyle: "long",
-                            }).format(selectedDate)
-                          ) : (
-                            <span>Pick a Date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent>
-                        <Calendar
-                          selected={selectedDate}
-                          onSelect={(date) =>
-                            setSelectedDate(date || new Date())
-                          }
-                          mode="single"
-                          fromDate={new Date()}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Status */}
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status:</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="PAID or PENDING"
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="flex flex-col space-y-6">
-            {/* Note */}
-            <FormField
-              control={form.control}
-              name="note"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Note (Optional):</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Enter Note (Optional)"
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Total */}
-          <FormField
-            control={form.control}
-            name="total"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Total:</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    {...field}
-                    placeholder="Enter Total"
-                    disabled={isPending}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <SubmitButton text="Submit Invoice" isPending={isPending} />
-        </form>
-      </Form>
-    </FormProvider>
+              <SubmitButton text="Submit Invoice" isPending={false} />
+            </form>
+          </Form>
+        </FormProvider>
+      </CardContent>
+    </Card>
   );
 };
+
+const InvoiceStep = ({ form, isPending, selectedDate, setSelectedDate }) => (
+  <div className="w-full max-w-md space-y-6">
+    {/* Invoice Number */}
+    <FormField
+      control={form.control}
+      name="invoiceNumber"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Invoice Number</FormLabel>
+          <FormControl>
+            <Input
+              {...field}
+              placeholder="Enter Invoice Number"
+              disabled={isPending}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+
+    {/* Date */}
+    <FormField
+      control={form.control}
+      name="date"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Date</FormLabel>
+          <FormControl>
+            <div className="relative">
+              <Button
+                variant="outline"
+                className="w-full text-left justify-start"
+              >
+                <CalendarIcon className="mr-2" />
+                {selectedDate.toDateString()}
+              </Button>
+              <Calendar
+                selected={selectedDate}
+                onSelect={(date) => setSelectedDate(date || new Date())}
+                mode="single"
+                fromDate={new Date()}
+              />
+            </div>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  </div>
+);
+
+const SummaryStep = () => (
+  <div className="text-center">
+    <h2 className="text-xl font-bold">Summary</h2>
+    <p>Review your invoice details before submission.</p>
+  </div>
+);
 
 export default InvoiceForm;

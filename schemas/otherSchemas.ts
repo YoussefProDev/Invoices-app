@@ -117,7 +117,9 @@ export const InvoiceSchema = z.object({
     "AGENZIE_VENDITE_ASTA",
     "ALTRO",
   ]),
-  invoiceNumber: z.number().positive("Invoice Number must be positive"),
+  invoiceNumber: z.string().refine((value) => +value > 0, {
+    message: "Invoice Number must be positive",
+  }),
 
   date: z.date(),
   status: z.enum(["PAID", "PENDING"]),
