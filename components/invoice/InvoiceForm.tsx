@@ -1,170 +1,51 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import z from "zod";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-// shadcn UI components
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import clsx from "clsx";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-import { Card, CardContent } from "../ui/card";
-import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
 import { SubmitButton } from "@/components/SubmitButtons";
 import ClientForm from "./ClientForm";
+import { InvoiceSchema } from "@/schemas";
+import { motion } from "motion/react";
+import { cn } from "@/lib/utils";
+import InvoiceStepForm from "./InvoiceStepForm";
+const SummaryStep = () => (
+  <div className="text-center">
+    <h2 className="text-xl font-bold">Summary</h2>
+    <p>Review your invoice details before submission.</p>
+  </div>
+);
 
-// Address Form Component
-export const AddressForm = ({ campo }) => {
-  const { control } = useFormContext();
+const InvoiceForm: React.FC = () => {
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  return (
-    <div className="grid gap-4 grid-cols-2">
-      <FormField
-        control={control}
-        name={`${campo}.street`}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Street:</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder="Enter Street" />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name={`${campo}.comune`}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Comune:</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder="Enter Comune" />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name={`${campo}.provincia`}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Provincia:</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder="Enter Provincia" />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name={`${campo}.cap`}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>CAP:</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder="Enter CAP" />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </div>
-  );
-};
-
-// // Service Form Component
-// export const ServiceForm = ({ campo }) => {
-//   const { control } = useFormContext();
-
-//   return (
-//     <div className="space-y-4">
-//       <FormField
-//         control={control}
-//         name={`${campo}.serviceName`}
-//         render={({ field }) => (
-//           <FormItem>
-//             <FormLabel>Service Name:</FormLabel>
-//             <FormControl>
-//               <Input {...field} placeholder="Enter Service Name" />
-//             </FormControl>
-//             <FormMessage />
-//           </FormItem>
-//         )}
-//       />
-//       <FormField
-//         control={control}
-//         name={`${campo}.serviceDescription`}
-//         render={({ field }) => (
-//           <FormItem>
-//             <FormLabel>Description:</FormLabel>
-//             <FormControl>
-//               <Textarea {...field} placeholder="Enter Service Description" />
-//             </FormControl>
-//             <FormMessage />
-//           </FormItem>
-//         )}
-//       />
-//       <FormField
-//         control={control}
-//         name={`${campo}.servicePrice`}
-//         render={({ field }) => (
-//           <FormItem>
-//             <FormLabel>Price:</FormLabel>
-//             <FormControl>
-//               <Input
-//                 type="number"
-//                 {...field}
-//                 placeholder="Enter Service Price"
-//               />
-//             </FormControl>
-//             <FormMessage />
-//           </FormItem>
-//         )}
-//       />
-//     </div>
-//   );
-// };
-
-const InvoiceForm = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-
-  const form = useForm({
-    resolver: zodResolver(z.object({})),
+  const form = useForm<z.infer<typeof InvoiceSchema>>({
+    resolver: zodResolver(InvoiceSchema),
     defaultValues: {
-      date: new Date(),
       client: {
-        clientName: "prova",
-        clientEmail: "prova@gmail.co",
-        codiceDestinatario: "dddd",
-        pecDestinatario: "ccdd",
+        clientName: "",
+        clientEmail: "",
+        codiceDestinatario: "",
+        pecDestinatario: "",
         clientAddress: {
-          cap: "20222",
-          comune: "evvai",
-          provincia: "ok",
-          street: "fffff",
+          cap: "",
+          comune: "",
+          provincia: "",
+          street: "",
         },
       },
-      invoiceNumber: "44",
-      note: "prova",
+      date: new Date(),
+      invoiceNumber: "",
+      note: "",
       regimeFiscale: "ORDINARIO",
       invoiceType: "FATTURA",
-      total: "3",
-      status: "PAID",
+      total: "",
+      status: "PENDING",
     },
   });
 
@@ -173,129 +54,118 @@ const InvoiceForm = () => {
     {
       id: 1,
       label: "Invoice",
-      component: (
-        <InvoiceStep
-          form={form}
-          isPending={false}
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-        />
-      ),
+      component: <InvoiceStepForm />,
     },
     { id: 2, label: "Summary", component: <SummaryStep /> },
   ];
 
-  const handleStepChange = (stepIndex) => {
-    setCurrentStep(stepIndex);
-    const container = document.querySelector(".snap-container");
-    if (container) {
-      const stepElement = container.children[stepIndex];
-      stepElement.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  const stepRefs = useRef<HTMLDivElement[]>([]);
 
-  const onSubmit = (formData: FormData) => {
-    console.log("ok", formData);
+  const handleStepChange = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const index = stepRefs.current.indexOf(
+            entry.target as HTMLDivElement
+          );
+          if (index >= 0) setCurrentStep(index);
+        }
+      });
+    },
+    []
+  );
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(handleStepChange, {
+      root: null,
+      threshold: 0.6,
+    });
+
+    stepRefs.current.forEach((step) => {
+      if (step) observer.observe(step);
+    });
+
+    return () => {
+      stepRefs.current.forEach((step) => {
+        if (step) observer.unobserve(step);
+      });
+    };
+  }, [handleStepChange]);
+
+  const onSubmit = (formData: z.infer<typeof InvoiceSchema>) => {
+    console.log("Submitted:", formData);
   };
+  const [realStep, setRealStep] = useState(steps[0].id);
+  const [activeStep, setActiveStep] = useState(realStep);
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardContent className="p-6">
-        {/* Step Buttons */}
-        <div className="flex justify-between mb-4">
-          {steps.map((step) => (
+    <Card className="w-full h-full max-w-4xl mx-auto relative">
+      <CardContent className="flex-1 flex flex-col p-6 h-full">
+        {/* Step Navigation */}
+        <div
+          onMouseLeave={() => setActiveStep(realStep)}
+          className="relative mx-auto flex w-fit px-2 space-x-4 rounded-full border-2 border-black bg-white p-1"
+        >
+          {steps.map((step, index) => (
             <Button
+              onMouseEnter={() => setActiveStep(step.id)}
+              variant="ghost"
               key={step.id}
-              onClick={() => handleStepChange(step.id)}
-              variant={currentStep === step.id ? "default" : "outline"}
+              onClick={() => {
+                setRealStep(step.id);
+                stepRefs.current[index]?.scrollIntoView({
+                  behavior: "smooth",
+                });
+              }}
+              className={`relative rounded-full px-3 py-1.5 text-sm font-medium ${
+                activeStep === step.id ? "" : " hover:text-white/80"
+              } outline-sky-400 transition focus-visible:outline-2`}
+              style={{
+                WebkitTapHighlightColor: "transparent",
+              }}
             >
+              {activeStep === step.id && (
+                <motion.span
+                  layoutId="bubble"
+                  className="absolute inset-0 z-10 bg-white"
+                  style={{
+                    borderRadius: 9999,
+                    mixBlendMode: "difference", // Usato solo per l'elemento attivo
+                  }}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
               {step.label}
             </Button>
           ))}
         </div>
-
         {/* Step Content */}
-        <FormProvider {...form}>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="snap-container w-full flex overflow-x-scroll snap-x snap-mandatory scroll-smooth">
-                {steps.map((step) => (
+        <div className="flex-1 flex flex-col">
+          <FormProvider {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="h-full flex flex-col"
+            >
+              <div className="snap-container w-full h-full flex overflow-x-scroll snap-x snap-mandatory scroll-smooth">
+                {steps.map((step, index) => (
                   <div
                     key={step.id}
-                    className="w-full flex-none snap-start h-full flex justify-center items-center px-4"
-                    style={{ minWidth: "100%" }}
+                    ref={(el) => {
+                      if (el) stepRefs.current[index] = el;
+                    }} // Proper ref assignment
+                    className="w-full flex-none snap-start px-4 flex justify-center items-center"
                   >
                     {step.component}
                   </div>
                 ))}
               </div>
-
               <SubmitButton text="Submit Invoice" isPending={false} />
             </form>
-          </Form>
-        </FormProvider>
+          </FormProvider>
+        </div>
       </CardContent>
     </Card>
   );
 };
-
-const InvoiceStep = ({ form, isPending, selectedDate, setSelectedDate }) => (
-  <div className="w-full max-w-md space-y-6">
-    {/* Invoice Number */}
-    <FormField
-      control={form.control}
-      name="invoiceNumber"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Invoice Number</FormLabel>
-          <FormControl>
-            <Input
-              {...field}
-              placeholder="Enter Invoice Number"
-              disabled={isPending}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-
-    {/* Date */}
-    <FormField
-      control={form.control}
-      name="date"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Date</FormLabel>
-          <FormControl>
-            <div className="relative">
-              <Button
-                variant="outline"
-                className="w-full text-left justify-start"
-              >
-                <CalendarIcon className="mr-2" />
-                {selectedDate.toDateString()}
-              </Button>
-              <Calendar
-                selected={selectedDate}
-                onSelect={(date) => setSelectedDate(date || new Date())}
-                mode="single"
-                fromDate={new Date()}
-              />
-            </div>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  </div>
-);
-
-const SummaryStep = () => (
-  <div className="text-center">
-    <h2 className="text-xl font-bold">Summary</h2>
-    <p>Review your invoice details before submission.</p>
-  </div>
-);
 
 export default InvoiceForm;
