@@ -123,9 +123,7 @@ export const InvoiceSchema = z.object({
 
   date: z.date(),
   status: z.enum(["PAID", "PENDING"]),
-
-  note: z.string().optional(),
-  total: z.string().min(0, "Total must be a positive number"),
-
   services: ServiceSchema.array().optional(),
+  note: z.string().optional(),
+  // total: z.string().min(0, "Total must be a positive number"),
 });

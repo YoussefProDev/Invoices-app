@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { requireBuisnessDetail, requireUser } from "@/utils/hooks";
+import { requireBuisnessDetail } from "@/utils/hooks";
 import Link from "next/link";
 import Logo from "@/public/logo.png";
 import Image from "next/image";
@@ -15,32 +15,35 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { db } from "@/lib/db";
-import { redirect } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
 import { signOut } from "@/auth";
-import { getUserById } from "@/utils/auth/users";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const user = await requireBuisnessDetail();
+  await requireBuisnessDetail();
+
   return (
     <>
-      <div className="grid min-h-screen w-full md:gird-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-        <div className="hidden border-r bg-muted/40 lg:block">
+      <div className="grid min-h-screen w-full grid-cols-1 md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+        {/* Sidebar for Large Screens */}
+        <div className="hidden lg:block border-r bg-muted/40">
           <div className="flex flex-col max-h-screen h-full gap-2">
             <div className="h-14 flex items-center border-b px-4 lg:h-[60px] lg:px-6">
               <Link href="/" className="flex items-center gap-2">
-                <Image src={Logo} alt="Logo" className="size-7" />
-                <p className="text-2xl font-bold">
+                <Image
+                  src={Logo}
+                  alt="Logo"
+                  className="w-8 h-8 lg:w-10 lg:h-10"
+                />
+                <p className="text-lg lg:text-2xl font-bold">
                   Invoice<span className="text-blue-600">Marshal</span>
                 </p>
               </Link>
             </div>
-            <div className="flex-1">
+            <div className="flex-1 overflow-auto">
               <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
                 <DashboardLinks />
               </nav>
@@ -48,21 +51,24 @@ export default async function DashboardLayout({
           </div>
         </div>
 
+        {/* Main Content */}
         <div className="flex flex-col">
           <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+            {/* Mobile Menu Trigger */}
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon" className="lg:hidden">
-                  <Menu className="size-5" />
+                  <Menu className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left">
+              <SheetContent side="left" className="w-64">
                 <nav className="grid gap-2 mt-10">
                   <DashboardLinks />
                 </nav>
               </SheetContent>
             </Sheet>
 
+            {/* User Dropdown */}
             <div className="flex items-center ml-auto">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -99,6 +105,8 @@ export default async function DashboardLayout({
               </DropdownMenu>
             </div>
           </header>
+
+          {/* Main Children Content */}
           <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
             {children}
           </main>

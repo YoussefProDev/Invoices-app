@@ -8,8 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { UseFormReturn, useFormContext } from "react-hook-form";
-import { z } from "zod";
+import { useFormContext } from "react-hook-form";
 import AddressForm from "./AddressForm";
 
 export const ClientForm = ({ campo }: { campo: string }) => {
@@ -30,12 +29,14 @@ export const ClientForm = ({ campo }: { campo: string }) => {
           </FormItem>
         )}
       />
-      <div className="flex space-x-4">
+
+      {/* Use grid layout for the next fields */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormField
           control={control}
           name={`${campo}.clientCF`}
           render={({ field }) => (
-            <FormItem className="flex-grow">
+            <FormItem>
               <FormLabel>Client CF:</FormLabel>
               <FormControl>
                 <Input {...field} placeholder="Enter Client CF" />
@@ -49,7 +50,7 @@ export const ClientForm = ({ campo }: { campo: string }) => {
           control={control}
           name={`${campo}.clientEmail`}
           render={({ field }) => (
-            <FormItem className="flex-grow">
+            <FormItem>
               <FormLabel>Client Email:</FormLabel>
               <FormControl>
                 <Input
@@ -63,12 +64,13 @@ export const ClientForm = ({ campo }: { campo: string }) => {
           )}
         />
       </div>
-      <div className="flex space-x-4">
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormField
           control={control}
           name={`${campo}.codiceDestinatario`}
           render={({ field }) => (
-            <FormItem className="flex-grow">
+            <FormItem>
               <FormLabel>Codice Destinatario:</FormLabel>
               <FormControl>
                 <Input {...field} placeholder="Enter Codice Destinatario" />
@@ -82,7 +84,7 @@ export const ClientForm = ({ campo }: { campo: string }) => {
           control={control}
           name={`${campo}.pecDestinatario`}
           render={({ field }) => (
-            <FormItem className="flex-grow">
+            <FormItem>
               <FormLabel>PEC Destinatario:</FormLabel>
               <FormControl>
                 <Input
@@ -97,6 +99,7 @@ export const ClientForm = ({ campo }: { campo: string }) => {
         />
       </div>
 
+      {/* Address form will occupy full width */}
       <AddressForm campo={`${campo}.clientAddress`} />
     </div>
   );

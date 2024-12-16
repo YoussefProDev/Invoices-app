@@ -32,6 +32,7 @@ import {
 } from "@/data/invoices";
 import { Textarea } from "../ui/textarea";
 import { formatCurrency } from "@/utils/formatCurrency";
+import ServicesForm from "./ServicesForm";
 
 const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
   const { control } = useFormContext();
@@ -39,15 +40,17 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
   const [rate, setRate] = useState("");
   const [quantity, setQuantity] = useState("");
   const calculateTotal = (Number(quantity) || 0) * (Number(rate) || 0);
+
   return (
     <div className="w-full max-w-md space-y-6">
-      <div className="flex space-x-4">
+      {/* Form Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Invoice Type */}
         <FormField
           control={control}
           name="invoiceType"
           render={({ field }) => (
-            <FormItem className="flex-grow">
+            <FormItem>
               <FormLabel>Invoice Type</FormLabel>
               <Select
                 {...field}
@@ -57,14 +60,14 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a verified email to display" />
+                    <SelectValue placeholder="Select Invoice Type" />
                   </SelectTrigger>
                 </FormControl>
 
                 <SelectContent>
-                  {invoiceTypeOptions.map((inoiceType) => (
-                    <SelectItem key={inoiceType} value={inoiceType}>
-                      {inoiceType}
+                  {invoiceTypeOptions.map((invoiceType) => (
+                    <SelectItem key={invoiceType} value={invoiceType}>
+                      {invoiceType}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -73,13 +76,14 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
             </FormItem>
           )}
         />
+
         {/* Regime Fiscale */}
         <FormField
           control={control}
           name="regimeFiscale"
           render={({ field }) => (
-            <FormItem className="flex-grow">
-              <FormLabel>Invoice Type</FormLabel>
+            <FormItem>
+              <FormLabel>Regime Fiscale</FormLabel>
               <Select
                 {...field}
                 onValueChange={field.onChange}
@@ -88,7 +92,7 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select regime Fiscale" />
+                    <SelectValue placeholder="Select Regime Fiscale" />
                   </SelectTrigger>
                 </FormControl>
 
@@ -105,13 +109,14 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
           )}
         />
       </div>
-      <div className="flex space-x-4">
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Invoice Number */}
         <FormField
           control={control}
           name="invoiceNumber"
           render={({ field }) => (
-            <FormItem className="flex-1">
+            <FormItem>
               <FormLabel>Invoice No.</FormLabel>
               <FormControl>
                 <div className="flex">
@@ -136,7 +141,7 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
           control={control}
           name="date"
           render={({ field }) => (
-            <FormItem className="flex-1">
+            <FormItem>
               <FormLabel>Date:</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
@@ -148,7 +153,7 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
                         !field.value && "text-muted-foreground"
                       )}
                     >
-                      <CalendarIcon className="mr-auto h-4 w-4 opacity-50" />
+                      <CalendarIcon className=" h-4 w-4 opacity-50" />
                       {field.value ? (
                         format(field.value, "PPP")
                       ) : (
@@ -190,7 +195,7 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder="Select Status" />
                 </SelectTrigger>
               </FormControl>
 
@@ -206,6 +211,9 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
           </FormItem>
         )}
       />
+      {/* Services */}
+      <ServicesForm />
+
       {/* Notes */}
       <FormField
         control={control}
@@ -225,45 +233,26 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
         )}
       />
 
-      <div className="flex justify-end">
-        <div className="w-1/3">
-          {/* Subtotal */}
-          {/* <div className="flex justify-between py-2">
-            <span>Subtotal</span>
-            <span>
-              {formatCurrency({
-                amount: calculateTotal, // Funzione o valore per calcolare il subtotal
-                currency: currency as any, // Valuta specificata
-              })}
-            </span>
-          </div> */}
-
-          {/* Total */}
+      {/* Subtotal and Total */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+        <div className="col-span-1">
           <div className="flex justify-between py-2 border-t">
             <FormField
               control={control}
               name="total"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel className="sr-only">Total</FormLabel>{" "}
-                  {/* Nascosto per evitare duplicati */}
+                  <FormLabel className="sr-only">Total</FormLabel>
                   <FormControl>
                     <div className="flex items-center justify-between">
                       <span>Total ({currency})</span>
                       <span className="font-medium underline underline-offset-2">
                         {formatCurrency({
-                          amount: calculateTotal, // Funzione o valore per calcolare il total
+                          amount: calculateTotal,
                           currency: currency as any,
                         })}
                       </span>
                     </div>
-                    {/* <Input
-                      {...field}
-                      type="number"
-                      placeholder="Enter total amount"
-                      className="sr-only" // Nascosto ma mantenuto per modifiche manuali
-                      disabled={isPending} // Disabilitato se necessario
-                    /> */}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -272,26 +261,6 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
           </div>
         </div>
       </div>
-
-      {/* Total */}
-      <FormField
-        control={control}
-        name="total"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Total</FormLabel>
-            <FormControl>
-              <Input
-                {...field}
-                type="number"
-                placeholder="Enter total amount"
-                disabled={isPending}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
     </div>
   );
 };

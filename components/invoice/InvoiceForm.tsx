@@ -2,17 +2,21 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import z from "zod";
-import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import clsx from "clsx";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/SubmitButtons";
 import ClientForm from "./ClientForm";
 import { InvoiceSchema } from "@/schemas";
 import { motion } from "motion/react";
-import { cn } from "@/lib/utils";
 import InvoiceStepForm from "./InvoiceStepForm";
+
 const SummaryStep = () => (
   <div className="text-center">
     <h2 className="text-xl font-bold">Summary</h2>
@@ -21,9 +25,6 @@ const SummaryStep = () => (
 );
 
 const InvoiceForm: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState<number>(0);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-
   const form = useForm<z.infer<typeof InvoiceSchema>>({
     resolver: zodResolver(InvoiceSchema),
     defaultValues: {
@@ -51,15 +52,13 @@ const InvoiceForm: React.FC = () => {
 
   const steps = [
     { id: 0, label: "Client", component: <ClientForm campo="client" /> },
-    {
-      id: 1,
-      label: "Invoice",
-      component: <InvoiceStepForm />,
-    },
+    { id: 1, label: "Invoice", component: <InvoiceStepForm /> },
     { id: 2, label: "Summary", component: <SummaryStep /> },
   ];
 
   const stepRefs = useRef<HTMLDivElement[]>([]);
+  const [realStep, setRealStep] = useState(steps[0].id);
+  const [activeStep, setActiveStep] = useState(realStep);
 
   const handleStepChange = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -68,7 +67,10 @@ const InvoiceForm: React.FC = () => {
           const index = stepRefs.current.indexOf(
             entry.target as HTMLDivElement
           );
-          if (index >= 0) setCurrentStep(index);
+          if (index >= 0) {
+            setActiveStep(index);
+            setRealStep(index);
+          }
         }
       });
     },
@@ -95,16 +97,13 @@ const InvoiceForm: React.FC = () => {
   const onSubmit = (formData: z.infer<typeof InvoiceSchema>) => {
     console.log("Submitted:", formData);
   };
-  const [realStep, setRealStep] = useState(steps[0].id);
-  const [activeStep, setActiveStep] = useState(realStep);
 
   return (
-    <Card className="w-full h-full max-w-4xl mx-auto relative">
-      <CardContent className="flex-1 flex flex-col p-6 h-full">
-        {/* Step Navigation */}
+    <Card className="max-w-full w-[95%] md:w-[80%] lg:w-[70%] mx-auto h-full relative ">
+      <CardHeader>
         <div
           onMouseLeave={() => setActiveStep(realStep)}
-          className="relative mx-auto flex w-fit px-2 space-x-4 rounded-full border-2 border-black bg-white p-1"
+          className="relative mx-auto sm:w-3/4 flex flex-wrap justify-center px-2 space-x-2 md:space-x-4 rounded-full border-2 border-black bg-white p-1"
         >
           {steps.map((step, index) => (
             <Button
@@ -117,12 +116,10 @@ const InvoiceForm: React.FC = () => {
                   behavior: "smooth",
                 });
               }}
-              className={`relative rounded-full px-3 py-1.5 text-sm font-medium ${
-                activeStep === step.id ? "" : " hover:text-white/80"
+              className={`relative rounded-full px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm font-medium ${
+                activeStep === step.id ? "" : "hover:text-white/80"
               } outline-sky-400 transition focus-visible:outline-2`}
-              style={{
-                WebkitTapHighlightColor: "transparent",
-              }}
+              style={{ WebkitTapHighlightColor: "transparent" }}
             >
               {activeStep === step.id && (
                 <motion.span
@@ -130,7 +127,7 @@ const InvoiceForm: React.FC = () => {
                   className="absolute inset-0 z-10 bg-white"
                   style={{
                     borderRadius: 9999,
-                    mixBlendMode: "difference", // Usato solo per l'elemento attivo
+                    mixBlendMode: "difference",
                   }}
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
@@ -139,27 +136,31 @@ const InvoiceForm: React.FC = () => {
             </Button>
           ))}
         </div>
-        {/* Step Content */}
+      </CardHeader>
+      <CardContent className="flex-1 flex flex-col p-4 md:p-6">
         <div className="flex-1 flex flex-col">
           <FormProvider {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="h-full flex flex-col"
+              className="h-full flex flex-col space-y-10"
             >
-              <div className="snap-container w-full h-full flex overflow-x-scroll snap-x snap-mandatory scroll-smooth">
+              <div className=" w-full h-full flex pb-12 overflow-x-scroll snap-x snap-mandatory scroll-smooth">
                 {steps.map((step, index) => (
                   <div
                     key={step.id}
                     ref={(el) => {
                       if (el) stepRefs.current[index] = el;
-                    }} // Proper ref assignment
-                    className="w-full flex-none snap-start px-4 flex justify-center items-center"
+                    }}
+                    className="w-full flex-none snap-start px-4 flex justify-center"
                   >
                     {step.component}
                   </div>
                 ))}
               </div>
-              <SubmitButton text="Submit Invoice" isPending={false} />
+
+              <CardFooter>
+                <SubmitButton text="Submit Invoice" isPending={false} />
+              </CardFooter>
             </form>
           </FormProvider>
         </div>
