@@ -1,9 +1,13 @@
-"use client";
-
 import React from "react";
-import { useForm, useFieldArray, useFormContext } from "react-hook-form";
+import { useFormContext, useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+} from "@/components/ui/form";
 import {
   Table,
   TableBody,
@@ -12,50 +16,55 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "../ui/sheet";
+import { z } from "zod";
+import { ServicesSchema } from "@/schemas";
 
 const ServicesForm = () => {
-  const { control } = useFormContext();
-
+  const { control, getValues } = useFormContext<{
+    services: z.infer<typeof ServicesSchema>;
+  }>();
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "services", // Nome del campo
+    name: "services", // Nome del campo per i servizi
   });
-  console.log(fields);
+
+  const handleAddService = (data: any) => {
+    append(data); // Aggiungi il servizio all'array
+  };
 
   return (
     <div className="space-y-4">
+      {/* Tabella dei servizi aggiunti */}
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nome Servizio</TableHead>
-            <TableHead>Prezzo</TableHead>
-            <TableHead>Azione</TableHead>
+            <TableHead>Descrizione</TableHead>
+            <TableHead>Quantità</TableHead>
+            <TableHead>Prezzo Unitario</TableHead>
+            <TableHead>Aliquota IVA</TableHead>
+            <TableHead>Natura</TableHead>
+            <TableHead>Prezzo Totale</TableHead>
+            <TableHead>Azioni</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
           {fields.map((field, index) => (
             <TableRow key={field.id}>
-              {/* Nome Servizio */}
-              <TableCell>
-                <Input
-                  {...register(`services.${index}.name` as const)}
-                  placeholder="Nome Servizio"
-                  defaultValue={field.name} // Valore iniziale
-                />
-              </TableCell>
+              <TableCell>{field.description}</TableCell>
+              <TableCell>{field.quantity}</TableCell>
+              <TableCell>{field.pricePerUnit}</TableCell>
+              <TableCell>{field.ivaRate}</TableCell>
+              <TableCell>{field.nature}</TableCell>
+              <TableCell>{field.totalPrice}</TableCell>
 
-              {/* Prezzo */}
-              <TableCell>
-                <Input
-                  type="number"
-                  {...register(`services.${index}.price` as const)}
-                  placeholder="Prezzo"
-                  defaultValue={field.price} // Valore iniziale
-                />
-              </TableCell>
-
-              {/* Azioni */}
               <TableCell>
                 <Button variant="destructive" onClick={() => remove(index)}>
                   Rimuovi
@@ -66,15 +75,122 @@ const ServicesForm = () => {
         </TableBody>
       </Table>
 
-      {/* Pulsante per aggiungere una riga */}
-      <Button type="button" onClick={() => append({ name: "", price: 0 })}>
-        Aggiungi Servizio
-      </Button>
+      {/* Sheet per aggiungere un nuovo servizio */}
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button type="button">Aggiungi Servizio</Button>
+        </SheetTrigger>
 
-      {/* Pulsante per inviare i dati */}
-      <Button type="submit" className="ml-2">
-        Invia
-      </Button>
+        <SheetContent className="w-[400px] sm:w-[540px]">
+          <SheetHeader>
+            <SheetTitle>Nuovo Servizio</SheetTitle>
+          </SheetHeader>
+
+          {/* Form per i dettagli del nuovo servizio */}
+          <div className="space-y-2">
+            <FormField
+              name={`services.${fields.length}.description`}
+              control={control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descrizione</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Descrizione" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name={`services.${fields.length}.quantity`}
+              control={control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Quantità</FormLabel>
+                  <FormControl>
+                    <Input type="number" {...field} placeholder="Quantità" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name={`services.${fields.length}.pricePerUnit`}
+              control={control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Prezzo Unitario</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      placeholder="Prezzo Unitario"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name={`services.${fields.length}.ivaRate`}
+              control={control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Aliquota IVA</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      placeholder="Aliquota IVA"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name={`services.${fields.length}.nature`}
+              control={control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Natura</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Natura" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name={`services.${fields.length}.totalPrice`}
+              control={control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Prezzo Totale</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      placeholder="Prezzo Totale"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="button"
+              onClick={() => {
+                console.log(getValues().services);
+
+                // handleAddService(fields[fields.length]);
+              }}
+            >
+              Aggiungi Servizio
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

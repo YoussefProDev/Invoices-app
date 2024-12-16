@@ -42,7 +42,7 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
   const calculateTotal = (Number(quantity) || 0) * (Number(rate) || 0);
 
   return (
-    <div className="w-full max-w-md space-y-6">
+    <div className="w-full space-y-6 md:max-w-md lg:max-w-lg">
       {/* Form Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Invoice Type */}
@@ -153,7 +153,7 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
                         !field.value && "text-muted-foreground"
                       )}
                     >
-                      <CalendarIcon className=" h-4 w-4 opacity-50" />
+                      <CalendarIcon className="h-4 w-4 opacity-50" />
                       {field.value ? (
                         format(field.value, "PPP")
                       ) : (

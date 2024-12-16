@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 const OnBoardingPage = async () => {
   const user = await requireBuisnessDetail();
-  if (user) redirect(DEFAULT_LOGIN_REDIRECT);
+  if (user) history.back();
   return (
     <div className="flex h-screen items-center justify-center">
       <OnBoardingForm />

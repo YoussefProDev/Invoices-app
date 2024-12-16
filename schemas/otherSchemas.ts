@@ -65,9 +65,8 @@ export const ServiceSchema = z.object({
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   totalPrice: z.number().positive("Total price must be positive"),
-  invoiceId: z.string(),
 });
-
+export const ServicesSchema = ServiceSchema.array();
 export const PaymentDetailsSchema = z.object({
   iban: z.string().optional(),
   bankName: z.string().optional(),
@@ -123,7 +122,7 @@ export const InvoiceSchema = z.object({
 
   date: z.date(),
   status: z.enum(["PAID", "PENDING"]),
-  services: ServiceSchema.array().optional(),
+  services: ServicesSchema.optional(),
   note: z.string().optional(),
   // total: z.string().min(0, "Total must be a positive number"),
 });

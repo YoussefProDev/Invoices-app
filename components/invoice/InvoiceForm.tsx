@@ -45,7 +45,19 @@ const InvoiceForm: React.FC = () => {
       note: "",
       regimeFiscale: "ORDINARIO",
       invoiceType: "FATTURA",
-      total: "",
+      services: [
+        {
+          description: "descrizione",
+          quantity: 2,
+          pricePerUnit: 22,
+          ivaRate: 2,
+          nature: "descrizione",
+          startDate: new Date(),
+          endDate: new Date(),
+          totalPrice: 33,
+        },
+      ],
+      // total: "",
       status: "PENDING",
     },
   });
@@ -59,6 +71,7 @@ const InvoiceForm: React.FC = () => {
   const stepRefs = useRef<HTMLDivElement[]>([]);
   const [realStep, setRealStep] = useState(steps[0].id);
   const [activeStep, setActiveStep] = useState(realStep);
+  // console.log(form.getValues());
 
   const handleStepChange = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -144,7 +157,7 @@ const InvoiceForm: React.FC = () => {
               onSubmit={form.handleSubmit(onSubmit)}
               className="h-full flex flex-col space-y-10"
             >
-              <div className=" w-full h-full flex pb-12 overflow-x-scroll snap-x snap-mandatory scroll-smooth">
+              <div className="w-full h-full flex pb-12 overflow-x-scroll snap-x snap-mandatory scroll-smooth">
                 {steps.map((step, index) => (
                   <div
                     key={step.id}
