@@ -32,7 +32,7 @@ import {
 } from "@/data/invoices";
 import { Textarea } from "../ui/textarea";
 import { formatCurrency } from "@/utils/formatCurrency";
-import ServicesForm from "./ServicesForm";
+import ServicesTable from "./ServicesTable";
 
 const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
   const { control } = useFormContext();
@@ -212,7 +212,7 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
         )}
       />
       {/* Services */}
-      <ServicesForm />
+      <ServicesTable />
 
       {/* Notes */}
       <FormField

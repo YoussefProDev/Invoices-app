@@ -57,7 +57,6 @@ const InvoiceForm: React.FC = () => {
           totalPrice: 33,
         },
       ],
-      // total: "",
       status: "PENDING",
     },
   });
@@ -69,9 +68,9 @@ const InvoiceForm: React.FC = () => {
   ];
 
   const stepRefs = useRef<HTMLDivElement[]>([]);
+
   const [realStep, setRealStep] = useState(steps[0].id);
   const [activeStep, setActiveStep] = useState(realStep);
-  // console.log(form.getValues());
 
   const handleStepChange = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -91,17 +90,20 @@ const InvoiceForm: React.FC = () => {
   );
 
   useEffect(() => {
+    // Copia il valore corrente di stepRefs.current per il setup e il cleanup
+    const stepsCopy = [...stepRefs.current];
+
     const observer = new IntersectionObserver(handleStepChange, {
       root: null,
       threshold: 0.6,
     });
 
-    stepRefs.current.forEach((step) => {
+    stepsCopy.forEach((step) => {
       if (step) observer.observe(step);
     });
 
     return () => {
-      stepRefs.current.forEach((step) => {
+      stepsCopy.forEach((step) => {
         if (step) observer.unobserve(step);
       });
     };
@@ -112,7 +114,7 @@ const InvoiceForm: React.FC = () => {
   };
 
   return (
-    <Card className="max-w-full w-[95%] md:w-[80%] lg:w-[70%] mx-auto h-full relative ">
+    <Card className="max-w-full w-[95%] md:w-[80%] lg:w-[70%] mx-auto h-full relative">
       <CardHeader>
         <div
           onMouseLeave={() => setActiveStep(realStep)}
@@ -170,7 +172,6 @@ const InvoiceForm: React.FC = () => {
                   </div>
                 ))}
               </div>
-
               <CardFooter>
                 <SubmitButton text="Submit Invoice" isPending={false} />
               </CardFooter>
