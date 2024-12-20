@@ -15,12 +15,12 @@ export const ServiceForm = ({
   handleAddService: (service: ServiceType) => void;
 }) => {
   const [formData, setFormData] = useState<ServiceType>({
-    description: "",
-    quantity: 0,
-    pricePerUnit: 0,
-    ivaRate: 0,
-    nature: "",
-    totalPrice: 0,
+    description: "descrizione",
+    quantity: 3,
+    pricePerUnit: 3,
+    ivaRate: 4,
+    nature: "descrizione",
+    totalPrice: 22,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -49,6 +49,7 @@ export const ServiceForm = ({
     }
 
     handleAddService({ ...validationResult.data });
+
     setErrors({});
   };
 
