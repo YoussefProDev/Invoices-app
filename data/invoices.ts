@@ -17,7 +17,7 @@ export const invoiceTypeOptions = [
   // "CESSIONE BENI AMMORTIZZABILI",
   // "AUTOCONSUMO CESSIONI GRATUITE",
   // "ACQUISTI SAN MARINO",
-];
+] as const;
 
 export const regimeFiscaleOptions = [
   "ORDINARIO",
@@ -38,9 +38,10 @@ export const regimeFiscaleOptions = [
   "RIVENDITA DOCUMENTI",
   "AGENZIE VENDITE ASTA",
   "ALTRO",
-];
+] as const;
 
-export const statusOptions = ["PAID", "PENDING"];
+export const statusOptions = ["PAID", "PENDING"] as const;
+// Dichiarazione di ivaOptions con valori letterali costanti
 export const ivaOptions = [
   { label: "22%", value: 22 },
   { label: "21%", value: 21 },
@@ -63,7 +64,7 @@ export const ivaOptions = [
   { label: "12,3% - Perc. compensazione agricoltura", value: 12.3 },
 ];
 
-// Estrarre solo i valori per la validazione
+// Estrarre i valori direttamente da ivaOptions
 export const ivaValues = ivaOptions.map((option) => option.value);
 
 export const natureOptions = [
@@ -87,5 +88,142 @@ export const natureOptions = [
   "Inversione contabile - prestazioni comparto edile e settori connessi",
   "Inversione contabile - operazioni settore energetico",
   "Inversione contabile - altri casi",
-  "IVA assolta in altro stato UE (vendite a distanza ex art. 40 commi 3 e 4 e art. 41 comma 1 lett. b, DL 331/93; prestazione di servizi di",
-];
+  "IVA assolta in altro stato UE (vendite a distanza ex art. 40 commi 3 e 4 e art. 41 comma 1 lett. b, DL 331/93as const; prestazione di servizi di",
+] as const;
+
+export const currencyOptions = [
+  "EUR",
+  "USD",
+  "GBP",
+  "JPY",
+  "CNY",
+  "CHF",
+  "CAD",
+  "AUD",
+  "HKD",
+  "NZD",
+  "SEK",
+  "KRW",
+  "SGD",
+  "NOK",
+  "MXN",
+  "INR",
+  "RUB",
+  "ZAR",
+  "BRL",
+  "TRY",
+  "TWD",
+  "DKK",
+  "PLN",
+  "THB",
+  "IDR",
+  "HUF",
+  "CZK",
+  "ILS",
+  "CLP",
+  "PHP",
+  "AED",
+  "COP",
+  "SAR",
+  "MYR",
+  "RON",
+  "ARS",
+  "VND",
+  "IQD",
+  "QAR",
+  "KWD",
+  "PKR",
+  "EGP",
+  "BDT",
+  "OMR",
+  "KZT",
+  "KGS",
+  "UZS",
+  "TJS",
+  "AZN",
+  "GEL",
+  "AMD",
+  "BYN",
+  "MDL",
+  "TMT",
+  "UAH",
+  "MNT",
+  "AFN",
+  "IRR",
+  "SYP",
+  "YER",
+  "SOS",
+  "SLL",
+  "LRD",
+  "GMD",
+  "GNF",
+] as const;
+
+// Mappa dei locali per le valute
+const currencyLocaleMap: Record<string, string> = {
+  EUR: "it-IT", // Euro (Italia)
+  USD: "en-US", // Dollaro (Stati Uniti)
+  GBP: "en-GB", // Sterlina (Regno Unito)
+  JPY: "ja-JP", // Yen (Giappone)
+  CNY: "zh-CN", // Yuan (Cina)
+  CHF: "de-CH", // Franco svizzero (Svizzera)
+  CAD: "en-CA", // Dollaro canadese (Canada)
+  AUD: "en-AU", // Dollaro australiano (Australia)
+  HKD: "zh-HK", // Dollaro di Hong Kong (Hong Kong)
+  NZD: "en-NZ", // Dollaro neozelandese (Nuova Zelanda)
+  SEK: "sv-SE", // Corona svedese (Svezia)
+  KRW: "ko-KR", // Won sudcoreano (Corea del Sud)
+  SGD: "en-SG", // Dollaro di Singapore (Singapore)
+  NOK: "no-NO", // Corona norvegese (Norvegia)
+  MXN: "es-MX", // Peso messicano (Messico)
+  INR: "hi-IN", // Rupia indiana (India)
+  RUB: "ru-RU", // Rublo russo (Russia)
+  ZAR: "af-ZA", // Rand sudafricano (Sud Africa)
+  BRL: "pt-BR", // Real brasiliano (Brasile)
+  TRY: "tr-TR", // Lira turca (Turchia)
+  TWD: "zh-TW", // Nuovo dollaro di Taiwan (Taiwan)
+  DKK: "da-DK", // Corona danese (Danimarca)
+  PLN: "pl-PL", // Zloty polacco (Polonia)
+  THB: "th-TH", // Baht tailandese (Thailandia)
+  IDR: "id-ID", // Rupia indonesiana (Indonesia)
+  HUF: "hu-HU", // Fiorino ungherese (Ungheria)
+  CZK: "cs-CZ", // Corona ceca (Repubblica Ceca)
+  ILS: "he-IL", // Shekel israeliano (Israele)
+  CLP: "es-CL", // Peso cileno (Cile)
+  PHP: "en-PH", // Peso filippino (Filippine)
+  AED: "ar-AE", // Dirham degli Emirati Arabi Uniti (Emirati Arabi Uniti)
+  COP: "es-CO", // Peso colombiano (Colombia)
+  SAR: "ar-SA", // Rial saudita (Arabia Saudita)
+  MYR: "ms-MY", // Ringgit malese (Malesia)
+  RON: "ro-RO", // Leu rumeno (Romania)
+  ARS: "es-AR", // Peso argentino (Argentina)
+  VND: "vi-VN", // Dong vietnamita (Vietnam)
+  IQD: "ar-IQ", // Dinaro iracheno (Iraq)
+  QAR: "ar-QA", // Rial del Qatar (Qatar)
+  KWD: "ar-KW", // Dinaro kuwaitiano (Kuwait)
+  PKR: "ur-PK", // Rupia pakistana (Pakistan)
+  EGP: "ar-EG", // Pound egiziano (Egitto)
+  BDT: "bn-BD", // Taka bangladese (Bangladesh)
+  OMR: "ar-OM", // Rial omanita (Oman)
+  KZT: "kk-KZ", // Tenge kazako (Kazakhstan)
+  KGS: "ky-KG", // Som kirghizo (Kyrgyzstan)
+  UZS: "uz-UZ", // Som uzbeko (Uzbekistan)
+  TJS: "tg-TJ", // Somoni tagiko (Tagikistan)
+  AZN: "az-AZ", // Manat azero (Azerbaigian)
+  GEL: "ka-GE", // Lari georgiano (Georgia)
+  AMD: "hy-AM", // Dram armeno (Armenia)
+  BYN: "be-BY", // Rublo bielorusso (Bielorussia)
+  MDL: "ro-MD", // Leu moldavo (Moldavia)
+  TMT: "tk-TM", // Manat turkmeno (Turkmenistan)
+  UAH: "uk-UA", // Grivnia ucraina (Ucraina)
+  MNT: "mn-MN", // Tugrik mongolo (Mongolia)
+  AFN: "fa-AF", // Afghani afghano (Afghanistan)
+  IRR: "fa-IR", // Rial iraniano (Iran)
+  SYP: "ar-SY", // Lira siriana (Siria)
+  YER: "ar-YE", // Rial yemenita (Yemen)
+  SOS: "so-SO", // Scellino somalo (Somalia)
+  SLL: "en-SL", // Leone liberiano (Sierra Leone)
+  LRD: "en-LR", // Dollaro liberiano (Liberia)
+  GMD: "en-GM", // Dalasi gambiano (Gambia)
+  GNF: "fr-GN", // Franco guineano (Guinea)
+};

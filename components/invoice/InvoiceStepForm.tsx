@@ -1,5 +1,4 @@
-"use client";
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   FormControl,
   FormField,
@@ -8,14 +7,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "../ui/calendar";
-
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { format } from "date-fns";
 import { useFormContext } from "react-hook-form";
-
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import {
@@ -29,17 +25,24 @@ import {
   invoiceTypeOptions,
   regimeFiscaleOptions,
   statusOptions,
+  currencyOptions, // Import currency options
 } from "@/data/invoices";
 import { Textarea } from "../ui/textarea";
-import { formatCurrency } from "@/utils/formatCurrency";
 import ServicesTable from "./ServicesTable";
-
+import { InvoiceType } from "@/types/schemasTypes";
+import { formatCurrency } from "@/utils/formatCurrency";
 const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
-  const { control } = useFormContext();
-  const [currency, setCurrency] = useState("USD");
-  const [rate, setRate] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const calculateTotal = (Number(quantity) || 0) * (Number(rate) || 0);
+  const [currency, setCurrency] = useState<string>("EUR");
+  const [dateOpen, setDateOpen] = useState(false);
+  const { control, watch } = useFormContext<InvoiceType>();
+  const services = watch("services"); // Controlla i dati di watch
+
+  // Calcolare il totale solo quando i dati cambiano
+  const calculateTotal = useMemo(() => {
+    return services?.reduce((acc, { totalPrice }) => {
+      return acc + totalPrice; // Gestisce il caso in cui totalPrice possa essere undefined
+    }, 0);
+  }, [services]);
 
   return (
     <div className="w-full space-y-6 md:max-w-md lg:max-w-lg">
@@ -63,7 +66,6 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
                     <SelectValue placeholder="Select Invoice Type" />
                   </SelectTrigger>
                 </FormControl>
-
                 <SelectContent>
                   {invoiceTypeOptions.map((invoiceType) => (
                     <SelectItem key={invoiceType} value={invoiceType}>
@@ -95,7 +97,6 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
                     <SelectValue placeholder="Select Regime Fiscale" />
                   </SelectTrigger>
                 </FormControl>
-
                 <SelectContent>
                   {regimeFiscaleOptions.map((regimeFiscale) => (
                     <SelectItem key={regimeFiscale} value={regimeFiscale}>
@@ -143,7 +144,7 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Date:</FormLabel>
-              <Popover>
+              <Popover open={dateOpen} onOpenChange={setDateOpen}>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
@@ -166,7 +167,10 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={field.onChange}
+                    onSelect={(e) => {
+                      field.onChange(e);
+                      setDateOpen(false);
+                    }}
                     disabled={(date) =>
                       date > new Date() || date < new Date("1900-01-01")
                     }
@@ -180,37 +184,75 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
         />
       </div>
 
-      {/* Status */}
-      <FormField
-        control={control}
-        name="status"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Status</FormLabel>
-            <Select
-              {...field}
-              onValueChange={field.onChange}
-              defaultValue={field.value}
-              disabled={isPending}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Status" />
-                </SelectTrigger>
-              </FormControl>
+      <div className=" gap-4">
+        {/* Status and Currency */}
+        <div className="flex space-x-4">
+          {/* Status */}
+          <FormField
+            control={control}
+            name="status"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Status</FormLabel>
+                <Select
+                  {...field}
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  disabled={isPending}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {statusOptions.map((statusOption) => (
+                      <SelectItem key={statusOption} value={statusOption}>
+                        {statusOption}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Currency */}
+          <FormField
+            control={control}
+            name="currency"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Currency</FormLabel>
+                <Select
+                  {...field}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    setCurrency(value);
+                  }} // Mantenere l'aggiornamento tramite il form
+                  defaultValue={currency}
+                  disabled={isPending}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Currency" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {currencyOptions.map((currencyOption) => (
+                      <SelectItem key={currencyOption} value={currencyOption}>
+                        {currencyOption}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      </div>
 
-              <SelectContent>
-                {statusOptions.map((statusOption) => (
-                  <SelectItem key={statusOption} value={statusOption}>
-                    {statusOption}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
       {/* Services */}
       <ServicesTable />
 
@@ -246,12 +288,15 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
                   <FormControl>
                     <div className="flex items-center justify-between">
                       <span>Total ({currency})</span>
-                      <span className="font-medium underline underline-offset-2">
-                        {formatCurrency({
-                          amount: calculateTotal,
-                          currency: currency as any,
-                        })}
-                      </span>
+                      <Input
+                        {...field}
+                        className="font-medium underline w-fit text-right underline-offset-2 bg-transparent border-none text-muted-foreground shadow-none focus-visible:ring-0 focus-visible:outline-none cursor-text p-0 min-w-0"
+                        value={formatCurrency({
+                          amount: calculateTotal ?? 0,
+                          currency: currency,
+                        })} // Visualizza il totale formattato
+                        readOnly
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />

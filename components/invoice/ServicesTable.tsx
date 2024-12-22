@@ -19,12 +19,10 @@ import {
 } from "../ui/sheet";
 
 import ServiceForm from "./ServiceForm";
-import { ServicesType, ServiceType } from "@/types/schemasTypes";
+import { InvoiceType, ServicesType, ServiceType } from "@/types/schemasTypes";
 const ServicesTable = () => {
   const [openSheet, setOpenSheet] = useState(false);
-  const { control } = useFormContext<{
-    services: ServicesType;
-  }>();
+  const { control } = useFormContext<InvoiceType>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "services",

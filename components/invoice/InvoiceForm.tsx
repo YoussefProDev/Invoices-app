@@ -118,6 +118,8 @@ const InvoiceForm: React.FC = () => {
                 setRealStep(step.id);
                 stepRefs.current[index]?.scrollIntoView({
                   behavior: "smooth",
+                  inline: "center", // Centra sull'asse X
+                  block: "nearest", // Mantiene la posizione attuale sull'asse Y
                 });
               }}
               className={`relative rounded-full px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm font-medium ${

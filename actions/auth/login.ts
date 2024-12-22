@@ -44,7 +44,7 @@ export const login = async (formData: z.infer<typeof LoginSchema>) => {
 
     return { success: "Confirmation email sent" };
   }
-  const passwordMatch = verifyPassword(password, existingUser.password);
+  const passwordMatch = await verifyPassword(password, existingUser.password);
 
   if (!passwordMatch) return { error: "Invalid Credentials" };
 

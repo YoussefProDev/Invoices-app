@@ -1,11 +1,15 @@
-import { ivaValues } from "@/data/invoices";
+import {
+  ivaValues,
+  invoiceTypeOptions,
+  regimeFiscaleOptions,
+} from "@/data/invoices"; // Import dynamic arrays
 import { z } from "zod";
 
+// Schema for the address
 export const AddressSchema = z.object({
   street: z
     .string()
     .min(1, "Street is required. Please provide the street name."),
-
   cap: z
     .string()
     .regex(/^\d{5}$/, {
@@ -20,6 +24,7 @@ export const AddressSchema = z.object({
     .min(1, "Provincia is required. Please specify the province."),
 });
 
+// Onboarding schema
 export const onBoardingSchema = z.object({
   companyName: z
     .string()
@@ -43,10 +48,10 @@ export const onBoardingSchema = z.object({
       /^([A-Z0-9_+-]+\.?)*[A-Z0-9_+-]@(pec\.)+[A-Z]{2,}$/i,
       "Invalid PEC address. Please provide a certified email address (PEC)."
     ),
-
   address: AddressSchema,
 });
 
+// Client schema (user with address)
 export const UserSchema = z.object({
   clientName: z
     .string()
@@ -54,7 +59,6 @@ export const UserSchema = z.object({
   clientAddress: AddressSchema,
   codiceDestinatario: z
     .string()
-
     .regex(/^[a-zA-Z0-9]{6,7}$/, {
       message:
         "Invalid Codice Destinatario. It must be 6 or 7 alphanumeric characters.",
@@ -70,6 +74,7 @@ export const UserSchema = z.object({
     .optional(),
 });
 
+// Client schema with CF (codice fiscale)
 export const ClientSchema = z.object({
   clientName: z
     .string()
@@ -80,7 +85,6 @@ export const ClientSchema = z.object({
   }),
   codiceDestinatario: z
     .string()
-
     .regex(/^[a-zA-Z0-9]{6,7}$/, {
       message:
         "Invalid Codice Destinatario. It must be 6 or 7 alphanumeric characters.",
@@ -96,6 +100,7 @@ export const ClientSchema = z.object({
     .optional(),
 });
 
+// Service schema (for individual services)
 export const ServiceSchema = z
   .object({
     description: z
@@ -116,10 +121,9 @@ export const ServiceSchema = z
       ),
     ivaRate: z
       .number()
-      .min(0, { message: "L'aliquota IVA è obbligatoria." }) // Controllo che il campo sia obbligatorio
+      .min(0, { message: "IVA rate is required." }) // Ensure IVA rate is provided
       .refine((rate) => ivaValues.includes(rate), {
-        message:
-          "L'aliquota IVA deve essere un valore valido tra le opzioni disponibili.",
+        message: "IVA rate must be a valid value from the available options.",
       }),
     nature: z.string().optional(),
     startDate: z.date().optional(),
@@ -129,17 +133,18 @@ export const ServiceSchema = z
   .refine(
     (data) => data.ivaRate !== 0 || (data.nature && data.nature.trim() !== ""),
     {
-      message: "La natura è obbligatoria quando l'aliquota IVA è 0.",
-      path: ["nature"], // Associa il messaggio d'errore al campo `nature`
+      message: "Nature is required when IVA rate is 0.",
+      path: ["nature"], // Link the error message to the "nature" field
     }
   );
 
+// Array of services schema
 export const ServicesSchema = ServiceSchema.array();
 
+// Payment details schema
 export const PaymentDetailsSchema = z.object({
   iban: z
     .string()
-
     .regex(/^[A-Z0-9]{15,34}$/, {
       message:
         "Invalid IBAN. It must be between 15 and 34 alphanumeric characters.",
@@ -152,67 +157,27 @@ export const PaymentDetailsSchema = z.object({
     .min(1, "Invoice ID is required. Please provide a valid invoice ID."),
 });
 
+// Invoice schema
 export const InvoiceSchema = z.object({
   client: ClientSchema,
-  invoiceType: z.enum(
-    [
-      "FATTURA",
-      "ACCONTO_FATTURA",
-      "ACCONTO_PARCELLA",
-      "NOTA_CREDITO",
-      "NOTA_DEBITO",
-      "PARCELLA",
-      "INTEGRAZIONE_FATTURA_REVERSE_CHARGE_INTERNO",
-      "INTEGRAZIONE_AUTOFATTURA_SERVIZI_ESTERO",
-      "INTEGRAZIONE_BENI_INTRACOMUNITARI",
-      "INTEGRAZIONE_BENI_EX_ART_17",
-      "AUTOFATTURA_REGOLARIZZAZIONE",
-      "AUTOFATTURA_SPLAFONAMENTO",
-      "ESTRAZIONE_BENI_DEPOSITO_IVA",
-      "FATTURA_DIFFERITA_A",
-      "FATTURA_DIFFERITA_B",
-      "CESSIONE_BENI_AMMORTIZZABILI",
-      "AUTOCONSUMO_CESSIONI_GRATUITE",
-      "ACQUISTI_SAN_MARINO",
-    ],
-    {
-      errorMap: () => ({
-        message:
-          "Invalid Invoice Type. Please provide a valid type from the predefined list.",
-      }),
-    }
-  ),
-  regimeFiscale: z.enum(
-    [
-      "ORDINARIO",
-      "FORFETTARIO",
-      "MINIMI",
-      "IVA_PER_CASSA",
-      "EDITORIA",
-      "IVA_PER_CASSA_PA",
-      "AGRICOLTURA",
-      "AGENZIE_VIAGGI",
-      "VENDITA_SALI_TABACCHI",
-      "BENI_USATI",
-      "INTRATTENIMENTI",
-      "AGRITURISMO",
-      "VENDITE_DOMICILIO",
-      "COMMERCIO_FIAMMIFERI",
-      "GESTIONE_SERVIZI_TELEFONIA",
-      "RIVENDITA_DOCUMENTI",
-      "AGENZIE_VENDITE_ASTA",
-      "ALTRO",
-    ],
-    {
-      errorMap: () => ({
-        message:
-          "Invalid Regime Fiscale. Please select a valid fiscal regime from the list.",
-      }),
-    }
-  ),
+  invoiceType: z.enum(invoiceTypeOptions, {
+    errorMap: () => ({
+      message:
+        "Invalid Invoice Type. Please provide a valid type from the predefined list.",
+    }),
+  }),
+  regimeFiscale: z.enum(regimeFiscaleOptions, {
+    errorMap: () => ({
+      message:
+        "Invalid Regime Fiscale. Please select a valid fiscal regime from the list.",
+    }),
+  }),
   invoiceNumber: z.string().regex(/^\d+$/, {
     message: "Invoice Number must be a positive integer.",
   }),
+  currency: z.string().optional(),
+  total: z.string().optional(),
+  paymentDetails: PaymentDetailsSchema.optional(),
   date: z.date(),
   status: z.enum(["PAID", "PENDING"]),
   services: ServicesSchema.optional(),
