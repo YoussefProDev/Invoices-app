@@ -1,63 +1,104 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
-import { FormMessage } from "@/components/ui/form"; // Assuming this is where FormMessage is imported from
+import { FormMessage } from "@/components/ui/form";
 import { Label } from "../ui/label";
 import { ServiceType } from "@/types/schemasTypes";
 import { ServiceSchema } from "@/schemas";
 import { Textarea } from "../ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { ivaOptions, natureOptions } from "@/data/invoices";
+import { z } from "zod";
 
+// Stato iniziale del form
+const initialState: Partial<ServiceType> = {
+  description: "",
+  quantity: 0,
+  pricePerUnit: 0,
+  // ivaRate: 0,
+  totalPrice: 0,
+  nature: "",
+};
+// Utility per mappare gli errori di Zod
+const mapZodErrors = (errors: z.ZodIssue[]): Record<string, string> => {
+  return errors.reduce(
+    (acc, error) => {
+      const field = error.path[0] as string; // Nome del campo
+      acc[field] = error.message; // Messaggio di errore
+      return acc;
+    },
+    {} as Record<string, string>
+  );
+};
 export const ServiceForm = ({
   handleAddService,
+  setOpenSheet,
 }: {
   handleAddService: (service: ServiceType) => void;
+  setOpenSheet: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const [formData, setFormData] = useState<ServiceType>({
-    description: "descrizione",
-    quantity: 3,
-    pricePerUnit: 3,
-    ivaRate: 4,
-    nature: "descrizione",
-    totalPrice: 22,
-  });
-
+  const [formData, setFormData] = useState<Partial<ServiceType>>(initialState);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Calcolo automatico del prezzo totale
+  useEffect(() => {
+    const quantity = formData.quantity ?? 0;
+    const pricePerUnit = formData.pricePerUnit ?? 0;
+    const ivaRate = formData.ivaRate ?? 0;
+
+    const basePrice = quantity * pricePerUnit;
+    const ivaMultiplier = ivaRate / 100;
+    const total = basePrice * (1 + ivaMultiplier);
+
+    setFormData((prev) => ({ ...prev, totalPrice: total }));
+  }, [formData.quantity, formData.pricePerUnit, formData.ivaRate]);
 
   // Gestione del cambiamento dei campi di input
   const handleChange = (field: keyof ServiceType, value: string | number) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
+      ...(field === "ivaRate" && value !== 0 ? { nature: "" } : {}),
     }));
   };
 
-  // Funzione per aggiungere un servizio alla lista
+  // Funzione per aggiungere un servizio
   const addService = () => {
+    // Validazione dello schema
     const validationResult = ServiceSchema.safeParse(formData);
 
     if (!validationResult.success) {
-      const validationErrors: Record<string, string> = {};
-      validationResult.error.errors.forEach((error) => {
-        const field = error.path[0] as string;
-        validationErrors[field] = error.message;
-      });
+      // Estrarre errori di validazione
+      const validationErrors = mapZodErrors(validationResult.error.errors);
 
+      // Aggiornare lo stato con gli errori
       setErrors(validationErrors);
       return;
     }
 
-    handleAddService({ ...validationResult.data });
+    // Se la validazione ha successo, aggiungere il servizio
+    handleAddService(validationResult.data);
 
+    // Ripristinare lo stato degli errori e chiudere il pannello
     setErrors({});
+    setOpenSheet(false);
   };
 
+  // Interfaccia del form
   return (
-    <form className="max-w-lg mx-auto p-6 bg-white shadow-md rounded-md space-y-6">
-      <fieldset className="space-y-4">
-        <legend className="text-xl font-semibold">Dettagli del Servizio</legend>
+    <div className="max-w-lg mx-auto p-6 bg-white shadow-md rounded-md space-y-6">
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Dettagli del Servizio</h2>
 
+        {/* Descrizione */}
         <div>
           <Label htmlFor="description">Descrizione</Label>
           <Textarea
@@ -74,6 +115,7 @@ export const ServiceForm = ({
           )}
         </div>
 
+        {/* Quantità */}
         <div>
           <Label htmlFor="quantity">Quantità</Label>
           <Input
@@ -91,6 +133,7 @@ export const ServiceForm = ({
           )}
         </div>
 
+        {/* Prezzo Unitario */}
         <div>
           <Label htmlFor="pricePerUnit">Prezzo Unitario</Label>
           <Input
@@ -110,41 +153,66 @@ export const ServiceForm = ({
           )}
         </div>
 
+        {/* Aliquota IVA */}
         <div>
           <Label htmlFor="ivaRate">Aliquota IVA</Label>
-          <Input
-            id="ivaRate"
-            type="number"
-            value={formData.ivaRate}
-            onChange={(e) => handleChange("ivaRate", Number(e.target.value))}
-            placeholder="Inserisci l'aliquota IVA"
-            className={errors.ivaRate ? "border-red-500" : ""}
-          />
+          <Select
+            onValueChange={(value) => handleChange("ivaRate", Number(value))}
+            value={formData.ivaRate?.toString() || ""}
+          >
+            <SelectTrigger
+              id="ivaRate"
+              className={errors.ivaRate ? "border-red-500" : ""}
+            >
+              <SelectValue placeholder="Seleziona l'aliquota IVA" />
+            </SelectTrigger>
+            <SelectContent>
+              {ivaOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value.toString()}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {errors.ivaRate && (
             <FormMessage className="text-red-500">{errors.ivaRate}</FormMessage>
           )}
         </div>
 
+        {/* Natura */}
         <div>
           <Label htmlFor="nature">Natura</Label>
-          <Input
-            id="nature"
-            value={formData.nature}
-            onChange={(e) => handleChange("nature", e.target.value)}
-            placeholder="Inserisci la natura del servizio"
-            className={errors.nature ? "border-red-500" : ""}
-          />
+          <Select
+            disabled={formData.ivaRate !== 0}
+            onValueChange={(value) => handleChange("nature", value)}
+            value={formData.nature || ""}
+          >
+            <SelectTrigger
+              id="nature"
+              className={errors.nature ? "border-red-500" : ""}
+            >
+              <SelectValue placeholder="Seleziona la natura" />
+            </SelectTrigger>
+            <SelectContent>
+              {natureOptions.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {errors.nature && (
             <FormMessage className="text-red-500">{errors.nature}</FormMessage>
           )}
         </div>
 
+        {/* Prezzo Totale */}
         <div>
           <Label htmlFor="totalPrice">Prezzo Totale</Label>
           <Input
             id="totalPrice"
-            type="number"
-            value={formData.totalPrice}
+            type="text"
+            value={(formData.totalPrice ?? 0).toFixed(2)}
             readOnly
             placeholder="Calcolato automaticamente"
             className={errors.totalPrice ? "border-red-500" : ""}
@@ -155,22 +223,14 @@ export const ServiceForm = ({
             </FormMessage>
           )}
         </div>
-      </fieldset>
+      </div>
 
+      {/* Bottoni di Azione */}
       <div className="flex justify-end space-x-4">
         <Button
           type="button"
           variant="secondary"
-          onClick={() =>
-            setFormData({
-              description: "",
-              quantity: 0,
-              pricePerUnit: 0,
-              ivaRate: 0,
-              nature: "",
-              totalPrice: 0,
-            })
-          }
+          onClick={() => setFormData(initialState)}
         >
           Resetta
         </Button>
@@ -178,7 +238,7 @@ export const ServiceForm = ({
           Conferma
         </Button>
       </div>
-    </form>
+    </div>
   );
 };
 

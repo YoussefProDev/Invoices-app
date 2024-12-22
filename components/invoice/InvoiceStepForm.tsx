@@ -234,9 +234,9 @@ const InvoiceStepForm = ({ isPending }: { isPending?: boolean }) => {
       />
 
       {/* Subtotal and Total */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+      <div className="grid grid-cols-1 gap-4 mt-6">
         <div className="col-span-1">
-          <div className="flex justify-between py-2 border-t">
+          <div className="flex justify-between py-2 border-t w-full">
             <FormField
               control={control}
               name="total"

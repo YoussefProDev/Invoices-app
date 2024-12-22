@@ -1,3 +1,4 @@
+import { ivaValues } from "@/data/invoices";
 import { z } from "zod";
 
 export const AddressSchema = z.object({
@@ -95,39 +96,43 @@ export const ClientSchema = z.object({
     .optional(),
 });
 
-export const ServiceSchema = z.object({
-  description: z
-    .string()
-    .min(
-      1,
-      "Service Description is required. Please provide a valid description."
-    ),
-  quantity: z
-    .number()
-    .positive(
-      "Quantity must be a positive integer. Please provide a valid quantity."
-    ),
-  pricePerUnit: z
-    .number()
-    .positive(
-      "Price per unit must be a positive number. Please provide a valid price."
-    ),
-  ivaRate: z
-    .number()
-    .positive(
-      "IVA rate must be a positive number. Please provide a valid rate."
-    ),
-  nature: z
-    .string()
-    .min(1, "Nature is required. Please provide the nature of the service."),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
-  totalPrice: z
-    .number()
-    .positive(
-      "Total price must be a positive number. Please provide a valid total."
-    ),
-});
+export const ServiceSchema = z
+  .object({
+    description: z
+      .string()
+      .min(
+        1,
+        "Service Description is required. Please provide a valid description."
+      ),
+    quantity: z
+      .number()
+      .positive(
+        "Quantity must be a positive integer. Please provide a valid quantity."
+      ),
+    pricePerUnit: z
+      .number()
+      .positive(
+        "Price per unit must be a positive number. Please provide a valid price."
+      ),
+    ivaRate: z
+      .number()
+      .min(0, { message: "L'aliquota IVA è obbligatoria." }) // Controllo che il campo sia obbligatorio
+      .refine((rate) => ivaValues.includes(rate), {
+        message:
+          "L'aliquota IVA deve essere un valore valido tra le opzioni disponibili.",
+      }),
+    nature: z.string().optional(),
+    startDate: z.date().optional(),
+    endDate: z.date().optional(),
+    totalPrice: z.number(),
+  })
+  .refine(
+    (data) => data.ivaRate !== 0 || (data.nature && data.nature.trim() !== ""),
+    {
+      message: "La natura è obbligatoria quando l'aliquota IVA è 0.",
+      path: ["nature"], // Associa il messaggio d'errore al campo `nature`
+    }
+  );
 
 export const ServicesSchema = ServiceSchema.array();
 

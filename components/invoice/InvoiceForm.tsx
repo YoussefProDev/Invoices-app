@@ -45,18 +45,7 @@ const InvoiceForm: React.FC = () => {
       note: "",
       regimeFiscale: "ORDINARIO",
       invoiceType: "FATTURA",
-      services: [
-        {
-          description: "descrizione",
-          quantity: 2,
-          pricePerUnit: 22,
-          ivaRate: 2,
-          nature: "descrizione",
-          startDate: new Date(),
-          endDate: new Date(),
-          totalPrice: 33,
-        },
-      ],
+      services: [],
       status: "PENDING",
     },
   });

@@ -41,3 +41,51 @@ export const regimeFiscaleOptions = [
 ];
 
 export const statusOptions = ["PAID", "PENDING"];
+export const ivaOptions = [
+  { label: "22%", value: 22 },
+  { label: "21%", value: 21 },
+  { label: "20%", value: 20 },
+  { label: "10%", value: 10 },
+  { label: "5%", value: 5 },
+  { label: "4%", value: 4 },
+  { label: "0%", value: 0 },
+  { label: "2% - Perc. compensazione agricoltura", value: 2 },
+  { label: "6,4% - Perc. compensazione agricoltura", value: 6.4 },
+  { label: "7% - Perc. compensazione agricoltura", value: 7 },
+  { label: "7,3% - Perc. compensazione agricoltura", value: 7.3 },
+  { label: "7,5% - Perc. compensazione agricoltura", value: 7.5 },
+  { label: "7,65% - Perc. compensazione agricoltura", value: 7.65 },
+  { label: "7,95% - Perc. compensazione agricoltura", value: 7.95 },
+  { label: "8,3% - Perc. compensazione agricoltura", value: 8.3 },
+  { label: "8,5% - Perc. compensazione agricoltura", value: 8.5 },
+  { label: "8,8% - Perc. compensazione agricoltura", value: 8.8 },
+  { label: "9,5% - Perc. compensazione agricoltura", value: 9.5 },
+  { label: "12,3% - Perc. compensazione agricoltura", value: 12.3 },
+];
+
+// Estrarre solo i valori per la validazione
+export const ivaValues = ivaOptions.map((option) => option.value);
+
+export const natureOptions = [
+  "Escluse ex art. 15",
+  "Non soggette ad IVA ai sensi degli artt. da 7 a 7-septies del DPR 633/72",
+  "Non soggette - altri casi",
+  "Non imponibili - esportazioni",
+  "Non imponibili - cessioni intracomunitarie",
+  "Non imponibili - cessioni verso San Marino",
+  "Non imponibili - operazioni assimilate alle cessioni all'esportazione",
+  "Non imponibili - a seguito di dichiarazioni d'intento",
+  "Non imponibili - altre operazioni che non concorrono alla formazione del plafond",
+  "Esenti",
+  "Regime del margine / IVA non esposta in fattura",
+  "Inversione contabile - cessione di rottami e altri materiali di recupero",
+  "Inversione contabile - cessione di oro e argento ai sensi della legge 7/2000 nonché di oreficeria usata ad OPO",
+  "Inversione contabile - subappalto nel settore edile",
+  "Inversione contabile - cessione di fabbricati",
+  "Inversione contabile - cessione di telefoni cellulari",
+  "Inversione contabile - cessione di prodotti elettronici",
+  "Inversione contabile - prestazioni comparto edile e settori connessi",
+  "Inversione contabile - operazioni settore energetico",
+  "Inversione contabile - altri casi",
+  "IVA assolta in altro stato UE (vendite a distanza ex art. 40 commi 3 e 4 e art. 41 comma 1 lett. b, DL 331/93; prestazione di servizi di",
+];

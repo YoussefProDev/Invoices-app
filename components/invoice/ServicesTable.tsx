@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,8 +20,8 @@ import {
 
 import ServiceForm from "./ServiceForm";
 import { ServicesType, ServiceType } from "@/types/schemasTypes";
-
 const ServicesTable = () => {
+  const [openSheet, setOpenSheet] = useState(false);
   const { control } = useFormContext<{
     services: ServicesType;
   }>();
@@ -37,7 +37,7 @@ const ServicesTable = () => {
   return (
     <div className="space-y-4">
       {/* Contenitore tabella responsiva */}
-      <div className="overflow-x-auto snap-x snap-mandatory flex">
+      <div className="flex">
         <Table className="min-w-[700px] table-auto border-collapse">
           <TableHeader>
             <TableRow>
@@ -48,12 +48,12 @@ const ServicesTable = () => {
               >
                 Descrizione
               </TableHead>
-              <TableHead className="snap-center">Quantità</TableHead>
-              <TableHead className="snap-center">Prezzo Unitario</TableHead>
-              <TableHead className="snap-center">Aliquota IVA</TableHead>
-              <TableHead className="snap-center">Natura</TableHead>
-              <TableHead className="snap-center">Prezzo Totale</TableHead>
-              <TableHead className="snap-center">Azioni</TableHead>
+              <TableHead>Quantità</TableHead>
+              <TableHead>Prezzo Unitario</TableHead>
+              <TableHead>Aliquota IVA</TableHead>
+              <TableHead>Natura</TableHead>
+              <TableHead>Prezzo Totale</TableHead>
+              <TableHead>Azioni</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -78,16 +78,12 @@ const ServicesTable = () => {
                     field.description
                   )}
                 </TableCell>
-                <TableCell className="snap-center">{field.quantity}</TableCell>
-                <TableCell className="snap-center">
-                  {field.pricePerUnit}
-                </TableCell>
-                <TableCell className="snap-center">{field.ivaRate}</TableCell>
-                <TableCell className="snap-center">{field.nature}</TableCell>
-                <TableCell className="snap-center">
-                  {field.totalPrice}
-                </TableCell>
-                <TableCell className="snap-center">
+                <TableCell>{field.quantity}</TableCell>
+                <TableCell>{field.pricePerUnit}</TableCell>
+                <TableCell>{field.ivaRate}</TableCell>
+                <TableCell>{field.nature}</TableCell>
+                <TableCell>{field.totalPrice}</TableCell>
+                <TableCell>
                   <Button variant="destructive" onClick={() => remove(index)}>
                     Rimuovi
                   </Button>
@@ -99,16 +95,19 @@ const ServicesTable = () => {
       </div>
 
       {/* Sheet per aggiungere un nuovo servizio */}
-      <Sheet>
+      <Sheet open={openSheet} onOpenChange={setOpenSheet}>
         <SheetTrigger asChild>
           <Button type="button">Aggiungi Servizio</Button>
         </SheetTrigger>
 
-        <SheetContent className="w-[90%] max-w-[540px]">
+        <SheetContent className="w-[90%]">
           <SheetHeader>
             <SheetTitle>Nuovo Servizio</SheetTitle>
           </SheetHeader>
-          <ServiceForm handleAddService={handleAddService} />
+          <ServiceForm
+            handleAddService={handleAddService}
+            setOpenSheet={setOpenSheet}
+          />
         </SheetContent>
       </Sheet>
     </div>
