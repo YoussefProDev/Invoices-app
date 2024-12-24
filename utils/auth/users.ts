@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { requireUser } from "../hooks";
 
 //User
 export const getUserByEmail = async (email: string) => {
@@ -8,7 +9,7 @@ export const getUserByEmail = async (email: string) => {
         email,
       },
       include: {
-        BusinessDetail: true,
+        businessDetail: true,
       },
     });
     if (!user) return null;
@@ -18,18 +19,26 @@ export const getUserByEmail = async (email: string) => {
   }
 };
 
-export const getUserById = async (id: string) => {
+export const getUserById = async (id?: string) => {
   try {
     const user = await db.user.findUnique({
       where: {
         id,
       },
       include: {
-        BusinessDetail: true,
+        businessDetail: true,
       },
     });
     return user;
   } catch (error) {
     return null;
   }
+};
+// Utility function to check session and handle authorization
+export const getUserSession = async () => {
+  const session = await requireUser();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized or User ID missing");
+  }
+  return session.user.id;
 };

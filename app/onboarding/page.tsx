@@ -4,10 +4,12 @@ import { requireBuisnessDetail } from "@/utils/hooks";
 import { redirect } from "next/navigation";
 
 const OnBoardingPage = async () => {
-  const user = await requireBuisnessDetail();
-  if (user) history.back();
+  const isBusinessDetailIncomplete = await requireBuisnessDetail();
+  if (!isBusinessDetailIncomplete) {
+    redirect(DEFAULT_LOGIN_REDIRECT);
+  }
   return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="flex h-screen items-center justify-center  ">
       <OnBoardingForm />
     </div>
   );

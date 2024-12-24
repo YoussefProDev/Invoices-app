@@ -7,10 +7,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id             String          @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String          @unique
+  emailVerified  DateTime?       @map("email_verified")
+  password       String?
+  image          String?
+  accounts       Account[]
+  sessions       Session[]
+  authenticators Authenticator[] // Plural name "authenticators"
+  invoices       Invoice[]
+  clients        Client[] // Renamed to "clients" for plural consistency
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  businessDetail businessDetail? // Changed to singular since it's optional and refers to a single instance
+
+  @@map("users")
+}
+
+model businessDetail {
+  id          Int    @id @default(autoincrement())
+  vatNumber   String @unique
+  taxCode     String @unique
+  companyName String
+  pec         String
+  userId      String @unique
+  user        User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  address   Address?
+}
+
 model Address {
-  id        String @id @default(cuid())
+  id        String @id @default(uuid())
   street    String
-  number    String
   cap       String
   comune    String
   provincia String
@@ -18,60 +53,32 @@ model Address {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Client         Client[]
-  BusinessDetail BusinessDetail[]
-}
+  // Correzione: businessDetailId deve essere di tipo Int, non String
+  businessDetailId Int?            @unique // Cambiato in Int?
+  businessDetail   businessDetail? @relation(fields: [businessDetailId], references: [id])
 
-model User {
-  id            String          @id @default(uuid())
-  firstName     String
-  lastName      String
-  email         String          @unique
-  emailVerified DateTime?       @map("email_verified")
-  password      String?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  Authenticator Authenticator[]
-  invoices      Invoice[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  BusinessDetail BusinessDetail?
-
-  @@map("users")
-}
-
-model BusinessDetail {
-  id          Int    @id @default(autoincrement())
-  vatNumber   String @unique // Partita IVA
-  taxCode     String @unique // Codice fiscale
-  companyName String
-
-  addressId String? // Foreign key to Address
-  address   Address? @relation(fields: [addressId], references: [id])
-  pec       String
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // La relazione con Client rimane opzionale
+  clientId String? @unique
+  client   Client? @relation(fields: [clientId], references: [id])
 }
 
 model Client {
-  id                 String    @id @default(cuid())
-  name               String
-  addressId          String // Foreign key to Address
+  id            String  @id @default(uuid())
+  name          String
+  codiceFiscale String?
+
   codiceDestinatario String?
   pecDestinatario    String?
-  email              String?   @unique
-  emailVerified      DateTime? @map("email_verified")
+  email              String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  address Address @relation(fields: [addressId], references: [id])
+  // Relazione uno-a-uno con Address
+  address Address?
+
+  userId String // Foreign key to User model
+  user   User   @relation(fields: [userId], references: [id])
 
   @@map("clients")
 }
@@ -163,10 +170,10 @@ model Invoice {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
-  User   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id])
   userId String?
 
-  @@unique([invoiceNumber, year]) // Ensure unique invoice number per year
+  @@unique([invoiceNumber, year]) // Ensures uniqueness of invoice number per year
 }
 
 model Service {
@@ -230,7 +237,7 @@ enum InvoiceType {
   NOTA_DEBITO
   PARCELLA
   INTEGRAZIONE_FATTURA_REVERSE_CHARGE_INTERNO
-  INTEGRAZIONE_AUTOFATTURA_SERVIZI_ESTERO
+  INTERAZIONE_AUTOFATTURA_SERVIZI_ESTERO
   INTEGRAZIONE_BENI_INTRACOMUNITARI
   INTEGRAZIONE_BENI_EX_ART_17
   AUTOFATTURA_REGOLARIZZAZIONE

@@ -75,7 +75,7 @@ export async function editInvoice(prevState: any, formData: FormData) {
   const session = await requireUser();
 
   const submission = parseWithZod(formData, {
-    schema: invoiceSchema,
+    schema: InvoiceSchema,
   });
 
   if (submission.status !== "success") {

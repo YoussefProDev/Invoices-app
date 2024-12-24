@@ -12,10 +12,11 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/SubmitButtons";
-import ClientForm from "./ClientForm";
+
 import { InvoiceSchema } from "@/schemas";
 import { motion } from "motion/react";
 import InvoiceStepForm from "./InvoiceStepForm";
+import { ClientPartForm } from "../client/ClientPartForm";
 
 const SummaryStep = () => (
   <div className="text-center">
@@ -51,7 +52,7 @@ const InvoiceForm: React.FC = () => {
   });
 
   const steps = [
-    { id: 0, label: "Client", component: <ClientForm campo="client" /> },
+    { id: 0, label: "Client", component: <ClientPartForm campo="client" /> },
     { id: 1, label: "Invoice", component: <InvoiceStepForm /> },
     { id: 2, label: "Summary", component: <SummaryStep /> },
   ];

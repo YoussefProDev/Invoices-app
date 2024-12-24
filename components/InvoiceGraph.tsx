@@ -28,7 +28,7 @@ async function getInvoices(userId: string) {
     },
   });
 
-  //Group and aggregate data by date
+  // Group and aggregate data by date
   const aggregatedData = rawData.reduce(
     (acc: { [key: string]: number }, curr) => {
       const date = new Date(curr.createdAt).toLocaleDateString("en-US", {
@@ -42,7 +42,8 @@ async function getInvoices(userId: string) {
     },
     {}
   );
-  //Convert to array and from the object
+
+  // Convert to array and sort by date
   const transformedData = Object.entries(aggregatedData)
     .map(([date, amount]) => ({
       date,
@@ -63,14 +64,14 @@ export async function InvoiceGraph() {
   const data = await getInvoices(session.user?.id as string);
 
   return (
-    <Card className="lg:col-span-2">
+    <Card className="lg:col-span-2 overflow-hidden">
       <CardHeader>
         <CardTitle>Paid Invoices</CardTitle>
         <CardDescription>
           Invoices which have been paid in the last 30 days.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="w-full overflow-x-auto">
         <Graph data={data} />
       </CardContent>
     </Card>

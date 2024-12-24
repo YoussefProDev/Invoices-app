@@ -31,6 +31,7 @@ const AddressForm = ({ campo }: { campo: string }) => {
                   {...field}
                   type="text"
                   placeholder="Main Street"
+                  onChange={field.onChange}
                 />
               </FormControl>
               <FormMessage />
@@ -52,6 +53,7 @@ const AddressForm = ({ campo }: { campo: string }) => {
                   {...field}
                   type="text"
                   placeholder="20100"
+                  onChange={field.onChange}
                 />
               </FormControl>
               <FormMessage />
@@ -70,6 +72,7 @@ const AddressForm = ({ campo }: { campo: string }) => {
                   {...field}
                   type="text"
                   placeholder="Milano"
+                  onChange={field.onChange}
                 />
               </FormControl>
               <FormMessage />
@@ -88,6 +91,8 @@ const AddressForm = ({ campo }: { campo: string }) => {
                   {...field}
                   type="text"
                   placeholder="MI"
+                  className="uppercase"
+                  onChange={field.onChange}
                 />
               </FormControl>
               <FormMessage />

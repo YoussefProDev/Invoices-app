@@ -15,13 +15,9 @@ export const AddressSchema = z.object({
     .regex(/^\d{5}$/, {
       message: "Invalid CAP. It must consist of exactly 5 digits.",
     })
-    .min(1, "CAP is required. Please provide a valid postal code."),
-  comune: z
-    .string()
-    .min(1, "Comune is required. Please specify the city or town."),
-  provincia: z
-    .string()
-    .min(1, "Provincia is required. Please specify the province."),
+    .min(1, "CAP is required"),
+  comune: z.string().min(1, "Comune is required"),
+  provincia: z.string().min(1, "Provincia is required"),
 });
 
 // Onboarding schema
@@ -80,9 +76,15 @@ export const ClientSchema = z.object({
     .string()
     .min(1, "Client Name is required. Please provide a valid name."),
   clientAddress: AddressSchema,
-  clientCF: z.string().regex(/^[A-Z0-9]{11,16}$/, {
-    message: "Invalid Client CF. It must be 11 or 16 alphanumeric characters.",
-  }),
+  clientCF: z
+    .string()
+    .regex(
+      /^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})$|([0-9]{11})$/i,
+      {
+        message:
+          "Invalid Codice Fiscale. It must match the Italian format (16 alphanumeric characters or 11 digits).",
+      }
+    ),
   codiceDestinatario: z
     .string()
     .regex(/^[a-zA-Z0-9]{6,7}$/, {
@@ -92,7 +94,10 @@ export const ClientSchema = z.object({
     .optional(),
   pecDestinatario: z
     .string()
-    .email("Invalid PEC address. Please provide a valid PEC email.")
+    .regex(
+      /^([A-Z0-9_+-]+\.?)*[A-Z0-9_+-]@(pec\.)+[A-Z]{2,}$/i,
+      "Invalid PEC address. Please provide a certified email address (PEC)."
+    )
     .optional(),
   clientEmail: z
     .string()

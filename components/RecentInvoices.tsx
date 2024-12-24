@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/lib/db";
 import { requireUser } from "@/utils/hooks";
 import { formatCurrency } from "@/utils/formatCurrency";
+
 async function getData(userId: string) {
   const data = await db.invoice.findMany({
     where: {
@@ -27,6 +28,7 @@ async function getData(userId: string) {
 export async function RecentInvoices() {
   const session = await requireUser();
   const data = await getData(session.user?.id as string);
+
   return (
     <Card>
       <CardHeader>
@@ -34,19 +36,17 @@ export async function RecentInvoices() {
       </CardHeader>
       <CardContent className="flex flex-col gap-8">
         {data.map((item) => (
-          <div className="flex items-center gap-4" key={item.id}>
-            <Avatar className="hidden sm:flex size-9">
+          <div className="flex items-center gap-4 flex-wrap" key={item.id}>
+            <Avatar className="hidden sm:flex size-9 shrink-0">
               <AvatarFallback>{item.clientName.slice(0, 2)}</AvatarFallback>
             </Avatar>
-            <div className="flex flex-col gap-1">
-              <p className="text-sm font-medium leadin-none">
-                {item.clientName}
-              </p>
-              <p className="text-sm text-muted-foreground">
+            <div className="flex flex-col gap-1 min-w-0">
+              <p className="text-sm font-medium truncate">{item.clientName}</p>
+              <p className="text-sm text-muted-foreground truncate">
                 {item.clientEmail}
               </p>
             </div>
-            <div className="ml-auto font-medium">
+            <div className="ml-auto font-medium shrink-0">
               +
               {formatCurrency({
                 amount: item.total,

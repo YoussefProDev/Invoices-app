@@ -22,14 +22,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Toaster } from "@/components/ui/sonner";
 import { signOut } from "@/auth";
+import { redirect } from "next/navigation";
+import { ONBOARDING_PAGE } from "@/routes";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  await requireBuisnessDetail();
-
+  const isBusinessDetailIncomplete = await requireBuisnessDetail();
+  if (isBusinessDetailIncomplete) {
+    redirect(ONBOARDING_PAGE);
+  }
   return (
     <>
       <div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[280px_1fr]">
@@ -67,8 +71,9 @@ export default async function DashboardLayout({
               </SheetTrigger>
               <SheetContent side="left" className="w-64">
                 <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+
                 <nav className="grid gap-2 mt-10">
-                  <DashboardLinks />
+                  <DashboardLinks insideSheet />
                 </nav>
               </SheetContent>
             </Sheet>

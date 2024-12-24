@@ -25,21 +25,23 @@ import { onBoardingSchema } from "@/schemas";
 // Actions
 import { onBoarding } from "@/actions/onBoarding";
 import { cn } from "@/lib/utils";
+import { OnBoardingType } from "@/types/schemasTypes";
+import AddressForm from "./client/AddressForm";
 
 const OnBoardingForm = () => {
-  // Hook per la gestione del form con React Hook Form e Zod
-  const form = useForm<z.infer<typeof onBoardingSchema>>({
+  const form = useForm<OnBoardingType>({
     resolver: zodResolver(onBoardingSchema),
     defaultValues: {
       taxCode: "",
       vatNumber: "",
       companyName: "",
       pec: "",
-      street: "",
-      number: "",
-      cap: "",
-      comune: "",
-      provincia: "",
+      address: {
+        street: "",
+        cap: "",
+        comune: "",
+        provincia: "",
+      },
     },
   });
 
@@ -53,25 +55,28 @@ const OnBoardingForm = () => {
       if (result?.error) {
         setError(result.error);
       }
-      // try {
-
-      // } catch (err) {
-      //   setError("An unexpected error occurred. Please try again.");
-      //   console.error(err);
-      // }
     });
   };
 
   return (
-    <Card>
+    <Card className="w-[600px]  max-w-4xl mx-auto p-6 md:p-10 rounded-lg shadow-md bg-white">
       <CardHeader>
-        <div className="w-full flex flex-col gap-y-4 items-center justify-center">
-          <h1 className={cn("text-3xl font-semibold")}>Add Some Information</h1>
+        <div className="w-full flex flex-col gap-y-4 items-center text-center">
+          <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">
+            Add Some Information
+          </h1>
+          <p className="text-gray-500 text-sm md:text-base">
+            Please fill in the details below to complete your onboarding.
+          </p>
         </div>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6"
+            noValidate
+          >
             <div className="space-y-4">
               {/* Company Name */}
               <FormField
@@ -86,6 +91,7 @@ const OnBoardingForm = () => {
                         {...field}
                         type="text"
                         placeholder="ACME Corp"
+                        className="w-full"
                       />
                     </FormControl>
                     <FormMessage />
@@ -93,13 +99,12 @@ const OnBoardingForm = () => {
                 )}
               />
               {/* Tax Code & VAT Number */}
-              <div className="flex space-x-4">
-                {/* Tax Code */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="taxCode"
                   render={({ field }) => (
-                    <FormItem className="flex-grow">
+                    <FormItem>
                       <FormLabel>Tax Code:</FormLabel>
                       <FormControl>
                         <Input
@@ -107,18 +112,18 @@ const OnBoardingForm = () => {
                           {...field}
                           type="text"
                           placeholder="RSSMRA74D22A001Q"
+                          className="uppercase"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                {/* VAT Number */}
                 <FormField
                   control={form.control}
                   name="vatNumber"
                   render={({ field }) => (
-                    <FormItem className="flex-grow">
+                    <FormItem>
                       <FormLabel>VAT Number:</FormLabel>
                       <FormControl>
                         <Input
@@ -126,6 +131,7 @@ const OnBoardingForm = () => {
                           {...field}
                           type="text"
                           placeholder="IT123456789"
+                          className="uppercase"
                         />
                       </FormControl>
                       <FormMessage />
@@ -133,7 +139,6 @@ const OnBoardingForm = () => {
                   )}
                 />
               </div>
-
               {/* PEC */}
               <FormField
                 control={form.control}
@@ -153,110 +158,17 @@ const OnBoardingForm = () => {
                   </FormItem>
                 )}
               />
-
               {/* Address */}
-              <div className="space-y-4">
-                {/* Street & Number */}
-                <div className="flex space-x-4">
-                  <FormField
-                    control={form.control}
-                    name="street"
-                    render={({ field }) => (
-                      <FormItem className="flex-grow">
-                        <FormLabel>Street:</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={isPending}
-                            {...field}
-                            type="text"
-                            placeholder="Main Street"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="number"
-                    render={({ field }) => (
-                      <FormItem className="w-24">
-                        <FormLabel>Number:</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={isPending}
-                            {...field}
-                            type="text"
-                            placeholder="123"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Cap & Comune  & Provincia */}
-                <div className="flex space-x-4">
-                  <FormField
-                    control={form.control}
-                    name="cap"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>CAP:</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={isPending}
-                            {...field}
-                            type="text"
-                            placeholder="20100"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="comune"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Comune:</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={isPending}
-                            {...field}
-                            type="text"
-                            placeholder="Milano"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="provincia"
-                    render={({ field }) => (
-                      <FormItem className="w-24">
-                        <FormLabel>Provincia:</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={isPending}
-                            {...field}
-                            type="text"
-                            placeholder="MI"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+              <AddressForm campo="address" />
             </div>
-
-            <FormError message={error} />
-            <SubmitButton text="Confirm" isPending={isPending} />
+            {/* Error Message */}
+            {error && <FormError message={error} />}
+            {/* Submit Button */}
+            <SubmitButton
+              text="Confirm"
+              isPending={isPending}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md transition-colors duration-200"
+            />
           </form>
         </Form>
       </CardContent>

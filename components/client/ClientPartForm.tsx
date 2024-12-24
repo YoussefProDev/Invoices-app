@@ -11,19 +11,25 @@ import { Input } from "@/components/ui/input";
 import { useFormContext } from "react-hook-form";
 import AddressForm from "./AddressForm";
 
-export const ClientForm = ({ campo }: { campo: string }) => {
+export const ClientPartForm = ({ campo }: { campo?: string }) => {
+  campo = campo ? `${campo}.` : "";
   const { control } = useFormContext();
 
   return (
     <div className="space-y-4">
       <FormField
         control={control}
-        name={`${campo}.clientName`}
+        name={`${campo}clientName`}
         render={({ field }) => (
           <FormItem>
             <FormLabel>Client Name:</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Enter Client Name" />
+              <Input
+                {...field}
+                placeholder="Enter Client Name"
+                // onChange={field.onChange}
+                // value={field.value}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -34,12 +40,17 @@ export const ClientForm = ({ campo }: { campo: string }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormField
           control={control}
-          name={`${campo}.clientCF`}
+          name={`${campo}clientCF`}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Client CF:</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Enter Client CF" />
+                <Input
+                  {...field}
+                  placeholder="RSSMRA74D22A001Q"
+                  className="uppercase"
+                  onChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -48,7 +59,7 @@ export const ClientForm = ({ campo }: { campo: string }) => {
 
         <FormField
           control={control}
-          name={`${campo}.clientEmail`}
+          name={`${campo}clientEmail`}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Client Email:</FormLabel>
@@ -57,6 +68,7 @@ export const ClientForm = ({ campo }: { campo: string }) => {
                   type="email"
                   {...field}
                   placeholder="Enter Client Email"
+                  onChange={field.onChange}
                 />
               </FormControl>
               <FormMessage />
@@ -68,12 +80,16 @@ export const ClientForm = ({ campo }: { campo: string }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormField
           control={control}
-          name={`${campo}.codiceDestinatario`}
+          name={`${campo}codiceDestinatario`}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Codice Destinatario:</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Enter Codice Destinatario" />
+                <Input
+                  {...field}
+                  placeholder="Enter Codice Destinatario"
+                  onChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -82,7 +98,7 @@ export const ClientForm = ({ campo }: { campo: string }) => {
 
         <FormField
           control={control}
-          name={`${campo}.pecDestinatario`}
+          name={`${campo}pecDestinatario`}
           render={({ field }) => (
             <FormItem>
               <FormLabel>PEC Destinatario:</FormLabel>
@@ -91,6 +107,7 @@ export const ClientForm = ({ campo }: { campo: string }) => {
                   type="email"
                   {...field}
                   placeholder="Enter PEC Destinatario"
+                  onChange={field.onChange}
                 />
               </FormControl>
               <FormMessage />
@@ -100,9 +117,9 @@ export const ClientForm = ({ campo }: { campo: string }) => {
       </div>
 
       {/* Address form will occupy full width */}
-      <AddressForm campo={`${campo}.clientAddress`} />
+      <AddressForm campo={`${campo}clientAddress`} />
     </div>
   );
 };
 
-export default ClientForm;
+export default ClientPartForm;
