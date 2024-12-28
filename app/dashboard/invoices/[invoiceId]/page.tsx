@@ -1,4 +1,4 @@
-import { EditInvoice } from "@/components/EditInvoice";
+import { EditInvoice } from "@/components/invoice/EditInvoice";
 import { db } from "@/lib/db";
 import { requireUser } from "@/utils/hooks";
 import { notFound } from "next/navigation";

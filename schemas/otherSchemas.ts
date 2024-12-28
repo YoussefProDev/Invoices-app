@@ -13,7 +13,7 @@ export const AddressSchema = z.object({
   cap: z
     .string()
     .regex(/^\d{5}$/, {
-      message: "Invalid CAP. It must consist of exactly 5 digits.",
+      message: "Invalid CAP.",
     })
     .min(1, "CAP is required"),
   comune: z.string().min(1, "Comune is required"),
@@ -22,27 +22,23 @@ export const AddressSchema = z.object({
 
 // Onboarding schema
 export const onBoardingSchema = z.object({
-  companyName: z
-    .string()
-    .min(1, "Company Name is required. Please provide a valid name."),
+  companyName: z.string().min(1, "Company Name is required."),
   vatNumber: z.string().regex(/^[a-zA-Z]{2}[0-9]{11}$/i, {
-    message:
-      "Invalid VAT Number. It must start with two letters followed by 11 digits.",
+    message: "Invalid VAT Number.",
   }),
   taxCode: z
     .string()
     .regex(
       /^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})$|([0-9]{11})$/i,
       {
-        message:
-          "Invalid Tax Code. It must match the Italian format (16 alphanumeric characters or 11 digits).",
+        message: "Invalid Tax Code.",
       }
     ),
   pec: z
     .string()
     .regex(
       /^([A-Z0-9_+-]+\.?)*[A-Z0-9_+-]@(pec\.)+[A-Z]{2,}$/i,
-      "Invalid PEC address. Please provide a certified email address (PEC)."
+      "Invalid PEC address."
     ),
   address: AddressSchema,
 });
@@ -72,37 +68,32 @@ export const UserSchema = z.object({
 
 // Client schema with CF (codice fiscale)
 export const ClientSchema = z.object({
-  clientName: z
+  name: z
     .string()
     .min(1, "Client Name is required. Please provide a valid name."),
-  clientAddress: AddressSchema,
-  clientCF: z
+  address: AddressSchema,
+  codiceFiscale: z
     .string()
     .regex(
       /^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})$|([0-9]{11})$/i,
       {
-        message:
-          "Invalid Codice Fiscale. It must match the Italian format (16 alphanumeric characters or 11 digits).",
+        message: "Invalid Codice Fiscale.",
       }
     ),
   codiceDestinatario: z
     .string()
     .regex(/^[a-zA-Z0-9]{6,7}$/, {
-      message:
-        "Invalid Codice Destinatario. It must be 6 or 7 alphanumeric characters.",
+      message: "Invalid Codice Destinatario.",
     })
     .optional(),
   pecDestinatario: z
     .string()
     .regex(
       /^([A-Z0-9_+-]+\.?)*[A-Z0-9_+-]@(pec\.)+[A-Z]{2,}$/i,
-      "Invalid PEC address. Please provide a certified email address (PEC)."
+      "Invalid PEC address."
     )
     .optional(),
-  clientEmail: z
-    .string()
-    .email("Invalid email address. Please provide a valid email.")
-    .optional(),
+  email: z.string().email("Invalid email address.").optional(),
 });
 
 // Service schema (for individual services)
@@ -185,6 +176,8 @@ export const InvoiceSchema = z.object({
   paymentDetails: PaymentDetailsSchema.optional(),
   date: z.date(),
   status: z.enum(["PAID", "PENDING"]),
-  services: ServicesSchema.optional(),
+  services: ServicesSchema.min(1, {
+    message: "at Least 1 services is Mandatory",
+  }),
   note: z.string().max(500, "Note must not exceed 500 characters.").optional(),
 });
