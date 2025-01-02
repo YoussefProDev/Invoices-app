@@ -3,7 +3,7 @@ import { DashboardBlocks } from "@/components/DashboardBlocks";
 import { EmptyState } from "@/components/EmptyState";
 import { RecentInvoices } from "@/components/RecentInvoices";
 
-import { requireUser } from "@/utils/hooks";
+import { requireUserSession } from "@/utils/hooks";
 import { Skeleton } from "@/components/ui/skeleton";
 import { db } from "@/lib/db";
 import { InvoiceGraph } from "@/components/invoice/InvoiceGraph";
@@ -22,8 +22,8 @@ async function getData(userId: string) {
 }
 
 export default async function DashboardRoute() {
-  const session = await requireUser();
-  const data = await getData(session.user?.id as string);
+  const userSession = await requireUserSession();
+  const data = await getData(userSession?.id as string);
   return (
     <>
       {data.length < 1 ? (

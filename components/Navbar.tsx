@@ -4,7 +4,7 @@ import Logo from "@/public/logo.png";
 import { buttonVariants } from "@/components/ui/button";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { DEFAULT_LOGIN_REDIRECT, LOGIN_PAGE } from "@/routes";
-import { requireUser } from "@/utils/hooks";
+import { requireUserSession } from "@/utils/hooks";
 import { auth } from "@/auth";
 
 export async function Navbar() {

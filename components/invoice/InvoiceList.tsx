@@ -1,28 +1,14 @@
+"use client";
 import { InvoiceActions } from "./InvoiceActions";
-import { db } from "@/lib/db";
-import { requireUser } from "@/utils/hooks";
-import { formatCurrency } from "@/utils/formatCurrency";
+
 import { Badge } from "@/components/ui/badge";
 import { Invoice } from "@prisma/client";
 import { Field } from "@/types/dataTypes";
 import { DynamicTable } from "../DynamicTable";
+import { useData } from "@/providers/DataProvider";
 
-async function getData(userId: string) {
-  const data = await db.invoice.findMany({
-    where: {
-      userId: userId,
-    },
-
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  return data;
-}
-export async function InvoiceList() {
-  const session = await requireUser();
-  const Invoices = await getData(session.user?.id as string);
+export function InvoiceList() {
+  const { invoices } = useData();
 
   const invoiceFields: Field<Invoice>[] = [
     {
@@ -35,8 +21,6 @@ export async function InvoiceList() {
     {
       label: "Amount",
       key: "total",
-      format: (value, row) =>
-        formatCurrency({ amount: value, currency: row.currency as any }),
     },
     {
       label: "Status",
@@ -54,7 +38,7 @@ export async function InvoiceList() {
   return (
     <>
       <DynamicTable<Invoice>
-        data={Invoices}
+        data={invoices}
         fields={invoiceFields}
         renderActions={(invoice) => (
           <InvoiceActions id={invoice.id} status={invoice.status} />

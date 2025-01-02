@@ -7,8 +7,9 @@ import {
 } from "@/components/ui/card";
 
 import { db } from "@/lib/db";
-import { requireUser } from "@/utils/hooks";
+import { requireUserSession } from "@/utils/hooks";
 import { Graph } from "../Graph";
+import { parseDynamicCurrency } from "@/utils/formatCurrency";
 
 async function getInvoices(userId: string) {
   const rawData = await db.invoice.findMany({
@@ -37,7 +38,7 @@ async function getInvoices(userId: string) {
         day: "numeric",
       });
 
-      acc[date] = (acc[date] || 0) + curr.total;
+      acc[date] = (acc[date] || 0) + parseDynamicCurrency(curr.total);
 
       return acc;
     },
@@ -61,8 +62,8 @@ async function getInvoices(userId: string) {
 }
 
 export async function InvoiceGraph() {
-  const session = await requireUser();
-  const data = await getInvoices(session.user?.id as string);
+  const userSession = await requireUserSession();
+  const data = await getInvoices(userSession?.id as string);
 
   return (
     <Card className="lg:col-span-2 overflow-hidden">

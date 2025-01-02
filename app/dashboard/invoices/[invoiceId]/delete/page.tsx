@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { requireUser } from "@/utils/hooks";
+import { requireUserSession } from "@/utils/hooks";
 import {
   Card,
   CardContent,
@@ -35,9 +35,9 @@ export default async function DeleteInvoiceRoute({
 }: {
   params: Params;
 }) {
-  const session = await requireUser();
+  const userSession = await requireUserSession();
   const { invoiceId } = await params;
-  await Authorize(invoiceId, session.user?.id as string);
+  await Authorize(invoiceId, userSession?.id as string);
   return (
     <div className="flex flex-1 justify-center items-center">
       <Card className="max-w-[500px]">

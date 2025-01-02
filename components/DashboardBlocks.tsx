@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, CreditCard, DollarSign, Users } from "lucide-react";
 import { db } from "@/lib/db";
-import { requireUser } from "@/utils/hooks";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { requireUserSession } from "@/utils/hooks";
+import { formatCurrency, parseDynamicCurrency } from "@/utils/formatCurrency";
 
 async function getData(userId: string) {
   const [data, openInvoices, paidinvoices] = await Promise.all([
@@ -42,9 +42,9 @@ async function getData(userId: string) {
 }
 
 export async function DashboardBlocks() {
-  const session = await requireUser();
+  const userSession = await requireUserSession();
   const { data, openInvoices, paidinvoices } = await getData(
-    session.user?.id as string
+    userSession?.id as string
   );
 
   return (
@@ -59,7 +59,10 @@ export async function DashboardBlocks() {
         <CardContent>
           <h2 className="text-xl md:text-2xl font-bold">
             {formatCurrency({
-              amount: data.reduce((acc, invoice) => acc + invoice.total, 0),
+              amount: data.reduce(
+                (acc, invoice) => acc + parseDynamicCurrency(invoice.total),
+                0
+              ),
               currency: "USD",
             })}
           </h2>

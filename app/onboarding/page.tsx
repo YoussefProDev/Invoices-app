@@ -14,14 +14,10 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { signOut } from "@/auth";
-const OnBoardingPage = async () => {
-  const isBusinessDetailIncomplete = await requireBuisnessDetail();
-  if (!isBusinessDetailIncomplete) {
-    // redirect(DEFAULT_LOGIN_REDIRECT);
-  }
+const OnBoardingPage = () => {
   return (
     <div className="flex h-screen items-center justify-center bg-gradient-to-br from-fuchsia-500 to-cyan-500 ">
-      {/* User Dropdown */}
+      {/* User Dropdown
       <div className="flex items-center ml-auto">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -53,7 +49,7 @@ const OnBoardingPage = async () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+      </div> */}
       <OnBoardingForm />
     </div>
   );

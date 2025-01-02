@@ -2,9 +2,11 @@ import { auth } from "@/auth";
 import {
   DEFAULT_LOGIN_REDIRECT,
   LOGIN_PAGE,
+  ONBOARDING_PAGE,
   authRoutes,
   publicRoutes,
 } from "./routes";
+import { requireBuisnessDetail } from "./utils/hooks";
 
 export default auth(async (req) => {
   const { pathname, origin } = req.nextUrl;
@@ -25,6 +27,14 @@ export default auth(async (req) => {
   if (!isAuthenticated && !isAuthRoute) {
     // Redirezione alla pagina di login per utenti non autenticati
     return Response.redirect(new URL(LOGIN_PAGE, origin));
+  }
+
+  if (pathname === ONBOARDING_PAGE) {
+    const isBusinessDetailcomplete = await requireBuisnessDetail();
+
+    if (isBusinessDetailcomplete) {
+      return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, origin));
+    }
   }
 });
 

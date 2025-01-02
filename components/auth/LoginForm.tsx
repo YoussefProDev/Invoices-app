@@ -69,6 +69,7 @@ const LoginForm = () => {
                       {...field}
                       type="email"
                       placeholder="yourmail@example.com"
+                      className="autofillInput"
                     />
                   </FormControl>
                   <FormMessage />

@@ -13,6 +13,7 @@ import { sendVerifacationEmail } from "@/utils/auth/email";
 import { verifyPassword } from "@/utils/auth/passwordCheck";
 
 export const login = async (formData: z.infer<typeof LoginSchema>) => {
+  console.log("ok");
   const validatedFields = LoginSchema.safeParse(formData);
 
   if (!validatedFields.success) {

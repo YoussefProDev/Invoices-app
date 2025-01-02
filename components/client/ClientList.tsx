@@ -1,7 +1,7 @@
 "use client";
 import { DynamicTable } from "@/components/DynamicTable";
 import { ClientActions } from "./ClientActions";
-import { useClients } from "@/providers/ClientProvider";
+import { useData } from "@/providers/DataProvider";
 
 import { ClientWithAddress, FieldsType } from "@/types/dataTypes";
 
@@ -31,7 +31,7 @@ export function ClientList({
   fields?: FieldsType<ClientWithAddress>;
   onClick?: (client: ClientWithAddress) => void;
 }) {
-  const clients = useClients();
+  const { clients } = useData();
 
   return (
     <DynamicTable<ClientWithAddress>

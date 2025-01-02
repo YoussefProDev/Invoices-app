@@ -2,7 +2,10 @@ import {
   ivaValues,
   invoiceTypeOptions,
   regimeFiscaleOptions,
+  ivaLabels,
+  currencyOptions, // Assumiamo che ci sia un array di valute importato
 } from "@/data/invoices"; // Import dynamic arrays
+import { isInvoiceNumberUniqueForYear } from "@/utils/invoices";
 import { z } from "zod";
 
 // Schema for the address
@@ -115,19 +118,19 @@ export const ServiceSchema = z
       .positive(
         "Price per unit must be a positive number. Please provide a valid price."
       ),
-    ivaRate: z
-      .number()
-      .min(0, { message: "IVA rate is required." }) // Ensure IVA rate is provided
-      .refine((rate) => ivaValues.includes(rate), {
+    ivaRate: z.enum(ivaLabels, {
+      errorMap: () => ({
         message: "IVA rate must be a valid value from the available options.",
       }),
+    }),
     nature: z.string().optional(),
     startDate: z.date().optional(),
     endDate: z.date().optional(),
     totalPrice: z.number(),
   })
   .refine(
-    (data) => data.ivaRate !== 0 || (data.nature && data.nature.trim() !== ""),
+    (data) =>
+      data.ivaRate !== "0%" || (data.nature && data.nature.trim() !== ""),
     {
       message: "Nature is required when IVA rate is 0.",
       path: ["nature"], // Link the error message to the "nature" field
@@ -164,20 +167,24 @@ export const InvoiceSchema = z.object({
   }),
   regimeFiscale: z.enum(regimeFiscaleOptions, {
     errorMap: () => ({
-      message:
-        "Invalid Regime Fiscale. Please select a valid fiscal regime from the list.",
+      message: "Invalid Regime Fiscale.",
     }),
   }),
   invoiceNumber: z.string().regex(/^\d+$/, {
     message: "Invoice Number must be a positive integer.",
   }),
-  currency: z.string().optional(),
-  total: z.string().optional(),
+  currency: z.enum(currencyOptions, {
+    errorMap: () => ({
+      message:
+        "Invalid Currency. Please provide a valid currency from the predefined list.",
+    }),
+  }),
+  total: z.string(),
   paymentDetails: PaymentDetailsSchema.optional(),
   date: z.date(),
   status: z.enum(["PAID", "PENDING"]),
   services: ServicesSchema.min(1, {
-    message: "at Least 1 services is Mandatory",
+    message: "At least 1 service is mandatory.",
   }),
   note: z.string().max(500, "Note must not exceed 500 characters.").optional(),
 });

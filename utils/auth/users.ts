@@ -1,5 +1,6 @@
+// import "server-only";
 import { db } from "@/lib/db";
-import { requireUser } from "../hooks";
+import { requireUserSession } from "../hooks";
 
 //User
 export const getUserByEmail = async (email: string) => {
@@ -9,10 +10,16 @@ export const getUserByEmail = async (email: string) => {
         email,
       },
       include: {
-        businessDetail: true,
+        businessDetail: {
+          include: {
+            address: true,
+          },
+        },
       },
     });
-    if (!user) return null;
+    if (!user) {
+      const userSession = await requireUserSession();
+    }
     return user;
   } catch (error) {
     return null;
@@ -26,7 +33,11 @@ export const getUserById = async (id?: string) => {
         id,
       },
       include: {
-        businessDetail: true,
+        businessDetail: {
+          include: {
+            address: true,
+          },
+        },
       },
     });
     return user;
@@ -36,9 +47,9 @@ export const getUserById = async (id?: string) => {
 };
 // Utility function to check session and handle authorization
 export const getUserSession = async () => {
-  const session = await requireUser();
-  if (!session?.user?.id) {
+  const userSession = await requireUserSession();
+  if (!userSession?.id) {
     throw new Error("Unauthorized or User ID missing");
   }
-  return session.user.id;
+  return userSession.id;
 };

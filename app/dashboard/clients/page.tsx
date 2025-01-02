@@ -1,3 +1,4 @@
+"use client";
 import { ClientList } from "@/components/client/ClientList";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -7,12 +8,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ClientWithAddress, FieldsType } from "@/types/dataTypes";
 
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
-const ClientsPage = async () => {
+const ClientsPage = () => {
+  const fields: FieldsType<ClientWithAddress> = [
+    { label: "Client Name", key: "name", sticky: true },
+    {
+      label: "Email",
+      key: "email",
+      format: (value: string | null) => value || "N/A",
+    },
+    {
+      label: "Pec",
+      key: "pecDestinatario",
+      format: (value: string | null) => value || "N/A",
+    },
+  ];
   return (
     <Card>
       <CardHeader>
@@ -27,7 +42,7 @@ const ClientsPage = async () => {
         </div>
       </CardHeader>
       <CardContent>
-        <ClientList />
+        <ClientList fields={fields} />
       </CardContent>
     </Card>
   );

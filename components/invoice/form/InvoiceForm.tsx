@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useRef,
   useState,
+  useTransition,
 } from "react";
 import z from "zod";
 import { FormProvider, useForm } from "react-hook-form";
@@ -23,17 +24,38 @@ import { InvoiceSchema } from "@/schemas";
 import { motion } from "motion/react";
 import InvoiceStepForm from "./InvoiceStepForm";
 import ClientStepForm from "./ClientStepForm";
-
-const SummaryStep = () => (
-  <div className="text-center">
-    <h2 className="text-xl font-bold">Summary</h2>
-    <p>Review your invoice details before submission.</p>
-  </div>
-);
+import SummaryStep from "./SummaryStep";
+import { createInvoice } from "@/actions/invoices";
+import { InvoiceType } from "@/types/schemasTypes";
+import FormError from "@/components/auth/FormError";
 
 const InvoiceForm: React.FC = () => {
   const form = useForm<z.infer<typeof InvoiceSchema>>({
     resolver: zodResolver(InvoiceSchema),
+    defaultValues: {
+      invoiceType: "FATTURA", // default valid value
+      regimeFiscale: "FORFETTARIO", // default valid value
+      invoiceNumber: "", // empty string as a placeholder for invoice number
+      currency: "EUR", // optional
+      total: "", // optional
+      client: {
+        name: "",
+        email: "",
+        codiceDestinatario: "",
+        pecDestinatario: "",
+        codiceFiscale: "",
+        address: {
+          street: "",
+          cap: "",
+          comune: "",
+          provincia: "",
+        },
+      },
+      date: new Date(), // default to current date
+      status: "PENDING", // default status
+      services: [], // at least one service, empty as a placeholder
+      note: "", // optional and empty
+    },
   });
 
   const steps = [
@@ -87,9 +109,21 @@ const InvoiceForm: React.FC = () => {
       });
     };
   }, [handleStepChange]);
-
-  const onSubmit = (formData: z.infer<typeof InvoiceSchema>) => {
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | undefined>("");
+  const onSubmit = (formData: InvoiceType) => {
     console.log("Submitted:", formData);
+
+    startTransition(async () => {
+      try {
+        const response = await createInvoice(formData);
+
+        setError(response?.error);
+      } catch (err) {
+        console.error("Error submitting the form:", err);
+        setError("An unexpected error occurred.");
+      }
+    });
   };
 
   return (
@@ -153,9 +187,7 @@ const InvoiceForm: React.FC = () => {
                   </div>
                 ))}
               </div>
-              <CardFooter>
-                <SubmitButton text="Submit Invoice" isPending={false} />
-              </CardFooter>
+              <FormError message={error} />
             </form>
           </FormProvider>
         </div>

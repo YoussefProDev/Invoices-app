@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { requireUser } from "@/utils/hooks";
+import { requireUserSession } from "@/utils/hooks";
 import { NextResponse } from "next/server";
 
 export async function POST(
@@ -11,14 +11,14 @@ export async function POST(
   }
 ) {
   try {
-    const session = await requireUser();
+    const userSession = await requireUserSession();
 
     const { invoiceId } = await params;
 
     const invoiceData = await db.invoice.findUnique({
       where: {
         id: invoiceId,
-        userId: session.user?.id,
+        userId: userSession?.id,
       },
     });
 

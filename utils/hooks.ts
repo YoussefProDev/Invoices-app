@@ -3,23 +3,23 @@ import { LOGIN_PAGE } from "@/routes";
 import { redirect } from "next/navigation";
 import { getUserById } from "./auth/users";
 
-export async function requireUser() {
+export async function requireUserSession() {
   const session = await auth();
 
   if (!session?.user) {
     redirect(LOGIN_PAGE);
   }
 
-  return session;
+  return session.user;
 }
 
 export async function requireBuisnessDetail() {
-  const session = await requireUser();
+  const userSession = await requireUserSession();
 
-  if (!session?.user) {
+  if (!userSession) {
     redirect(LOGIN_PAGE);
   }
-  const { id } = session.user;
+  const { id } = userSession;
   const user = await getUserById(id);
 
   const isBusinessDetailIncomplete =

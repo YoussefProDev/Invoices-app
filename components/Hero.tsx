@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import HeroImage from "@/public/hero.png";
 import { DEFAULT_LOGIN_REDIRECT, LOGIN_PAGE } from "@/routes";
-import { requireUser } from "@/utils/hooks";
+import { requireUserSession } from "@/utils/hooks";
 import { auth } from "@/auth";
 
 export async function Hero() {

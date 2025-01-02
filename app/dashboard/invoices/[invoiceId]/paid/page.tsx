@@ -13,7 +13,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { SubmitButton } from "@/components/SubmitButtons";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
-import { requireUser } from "@/utils/hooks";
+import { requireUserSession } from "@/utils/hooks";
 import { MarkAsPaidAction } from "@/actions/invoices";
 
 async function Authorize(invoiceId: string, userId: string) {
@@ -33,8 +33,8 @@ type Params = Promise<{ invoiceId: string }>;
 
 export default async function MarkAsPaid({ params }: { params: Params }) {
   const { invoiceId } = await params;
-  const session = await requireUser();
-  await Authorize(invoiceId, session.user?.id as string);
+  const userSession = await requireUserSession();
+  await Authorize(invoiceId, userSession?.id as string);
   return (
     <div className="flex flex-1 justify-center items-center">
       <Card className="max-w-[500px]">

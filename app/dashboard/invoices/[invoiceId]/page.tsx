@@ -1,6 +1,5 @@
-import { EditInvoice } from "@/components/invoice/EditInvoice";
 import { db } from "@/lib/db";
-import { requireUser } from "@/utils/hooks";
+import { requireUserSession } from "@/utils/hooks";
 import { notFound } from "next/navigation";
 
 async function getData(invoiceId: string, userId: string) {
@@ -22,8 +21,13 @@ type Params = Promise<{ invoiceId: string }>;
 
 export default async function EditInvoiceRoute({ params }: { params: Params }) {
   const { invoiceId } = await params;
-  const session = await requireUser();
-  const data = await getData(invoiceId, session.user?.id as string);
+  const userSession = await requireUserSession();
+  const data = await getData(invoiceId, userSession?.id as string);
 
-  return <EditInvoice data={data} />;
+  return (
+    <>
+      edit invoice route
+      {/* <EditInvoice data={data} /> */}
+    </>
+  );
 }

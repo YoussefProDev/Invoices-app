@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { requireBuisnessDetail, requireUser } from "@/utils/hooks";
+import { requireBuisnessDetail, requireUserSession } from "@/utils/hooks";
 import Link from "next/link";
 import Logo from "@/public/logo.png";
 import Image from "next/image";
@@ -24,8 +24,9 @@ import { Toaster } from "@/components/ui/sonner";
 import { signOut } from "@/auth";
 import { redirect } from "next/navigation";
 import { LOGIN_PAGE, ONBOARDING_PAGE } from "@/routes";
-import { ClientProvider } from "@/providers/ClientProvider";
+import { DataProvider } from "@/providers/DataProvider";
 import { getClients } from "@/utils/client";
+import { getInvoices } from "@/utils/invoices";
 
 export default async function DashboardLayout({
   children,
@@ -36,8 +37,10 @@ export default async function DashboardLayout({
   if (isBusinessDetailIncomplete) {
     redirect(ONBOARDING_PAGE);
   }
-  const session = await requireUser();
-  const clients = await getClients(session.user?.id as string);
+  const userSession = await requireUserSession();
+  const clients = await getClients(userSession?.id as string);
+  const invoices = await getInvoices(userSession?.id as string);
+
   return (
     <>
       <div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[280px_1fr]">
@@ -123,7 +126,9 @@ export default async function DashboardLayout({
 
           {/* Main Content */}
           <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-            <ClientProvider clients={clients}>{children}</ClientProvider>
+            <DataProvider clients={clients} invoices={invoices}>
+              {children}
+            </DataProvider>
           </main>
         </div>
       </div>

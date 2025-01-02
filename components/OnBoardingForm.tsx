@@ -64,15 +64,18 @@ const OnBoardingForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-5xl mx-auto p-6 md:p-12 rounded-xl shadow-2xl bg-white">
+    <Card className="w-full max-w-5xl mx-auto p-6 md:p-12 rounded-xl shadow-lg bg-white">
       <CardHeader>
         <div className="flex flex-col items-center text-center gap-4">
           <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800">
             Add Your Information
           </h1>
+          <p className="text-gray-600 text-lg">
+            Please fill in the required details to complete your onboarding.
+          </p>
         </div>
       </CardHeader>
-      <CardContent className="h-full ">
+      <CardContent className="h-full">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}

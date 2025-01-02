@@ -1,6 +1,6 @@
 import InvoiceForm from "@/components/invoice/form/InvoiceForm";
 import { db } from "@/lib/db";
-import { requireUser } from "@/utils/hooks";
+import { requireUserSession } from "@/utils/hooks";
 
 async function getUserData(userId: string) {
   const data = await db.user.findUnique({
@@ -18,8 +18,8 @@ async function getUserData(userId: string) {
 }
 
 export default async function InvoiceCreationRoute() {
-  const session = await requireUser();
-  const data = await getUserData(session.user?.id as string);
+  const userSession = await requireUserSession();
+  const data = await getUserData(userSession?.id as string);
   return (
     <>
       <InvoiceForm />

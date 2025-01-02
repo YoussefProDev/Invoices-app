@@ -1,47 +1,82 @@
 "use server";
 
-import { requireUser } from "@/utils/hooks";
+import { requireUserSession } from "@/utils/hooks";
 import { parseWithZod } from "@conform-to/zod";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { resend } from "@/lib/resend";
 import { InvoiceSchema } from "@/schemas";
-
-export async function createInvoice(prevState: any, formData: FormData) {
-  const session = await requireUser();
-
-  const submission = parseWithZod(formData, {
-    schema: InvoiceSchema,
-  });
-
-  if (submission.status !== "success") {
-    return submission.reply();
+import { AddressType, InvoiceType } from "@/types/schemasTypes";
+import { getUserById, getUserSession } from "@/utils/auth/users";
+import { addressMapper } from "@/utils/mappers/address";
+import { isInvoiceNumberUniqueForYear } from "@/utils/invoices";
+// Function to create a client
+export const createInvoice = async (invoiceForm: InvoiceType) => {
+  const validatedFields = InvoiceSchema.safeParse(invoiceForm);
+  if (!validatedFields.success) {
+    return {
+      error: "Invalid fields in the form!",
+      details: validatedFields.error.format(),
+    };
   }
+
+  const userId = await getUserSession(); // Ensure userId is always valid
+  const user = await getUserById(userId);
+
+  const {
+    client,
+    currency,
+    date,
+    invoiceNumber,
+    invoiceType,
+    regimeFiscale,
+    services,
+    status,
+    total,
+    note,
+    paymentDetails,
+  } = validatedFields.data;
+  const isInvoiceNumberValid = await isInvoiceNumberUniqueForYear(
+    +invoiceNumber,
+    date.getFullYear()
+  );
+  if (!isInvoiceNumberValid) {
+    return {
+      error: "Invoice number must be unique for the year!",
+    };
+  }
+  const userAddress = addressMapper(
+    user?.businessDetail?.address as AddressType
+  );
+
+  const clientAddress = addressMapper(client.address);
 
   const data = await db.invoice.create({
     data: {
-      clientAddress: submission.value.clientAddress,
-      clientEmail: submission.value.clientEmail,
-      clientName: submission.value.clientName,
-      currency: submission.value.currency,
-      date: submission.value.date,
-      dueDate: submission.value.dueDate,
-      fromAddress: submission.value.fromAddress,
-      fromEmail: submission.value.fromEmail,
-      fromName: submission.value.fromName,
-      invoiceType: "ACCONTO_FATTURA", //!check later
-      regimeFiscale: "AGENZIE_VENDITE_ASTA", //!check later
-      year: 2024, //!check later
-      // invoiceItemDescription: submission.value.invoiceItemDescription,
-      // invoiceItemQuantity: submission.value.invoiceItemQuantity,
-      // invoiceItemRate: submission.value.invoiceItemRate,
-      invoiceName: submission.value.invoiceName,
-      invoiceNumber: submission.value.invoiceNumber,
-      status: submission.value.status,
-      total: submission.value.total,
-      note: submission.value.note,
-      userId: session.user?.id,
+      clientEmail: client.email as string,
+      clientName: client.name,
+      currency,
+      date,
+      clientAddress,
+      fromAddress: userAddress,
+      fromEmail: user?.email as string,
+      fromName: `${user?.firstName} ${user?.lastName}`,
+      invoiceType,
+      regimeFiscale,
+      year: date.getFullYear(),
+      invoiceNumber: +invoiceNumber,
+      services: {
+        create: [...services],
+      },
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
+      status,
+      total,
+      note,
     },
   });
 
@@ -69,10 +104,10 @@ export async function createInvoice(prevState: any, formData: FormData) {
   // });
 
   return redirect("/dashboard/invoices");
-}
+};
 
 export async function editInvoice(prevState: any, formData: FormData) {
-  const session = await requireUser();
+  const userSession = await requireUserSession();
 
   const submission = parseWithZod(formData, {
     schema: InvoiceSchema,
@@ -82,31 +117,31 @@ export async function editInvoice(prevState: any, formData: FormData) {
     return submission.reply();
   }
 
-  const data = await db.invoice.update({
-    where: {
-      id: formData.get("id") as string,
-      userId: session.user?.id,
-    },
-    data: {
-      clientAddress: submission.value.clientAddress,
-      clientEmail: submission.value.clientEmail,
-      clientName: submission.value.clientName,
-      currency: submission.value.currency,
-      date: submission.value.date,
-      dueDate: submission.value.dueDate,
-      fromAddress: submission.value.fromAddress,
-      fromEmail: submission.value.fromEmail,
-      fromName: submission.value.fromName,
-      // invoiceItemDescription: submission.value.invoiceItemDescription,
-      // invoiceItemQuantity: submission.value.invoiceItemQuantity,
-      // invoiceItemRate: submission.value.invoiceItemRate,
-      invoiceName: submission.value.invoiceName,
-      invoiceNumber: submission.value.invoiceNumber,
-      status: submission.value.status,
-      total: submission.value.total,
-      note: submission.value.note,
-    },
-  });
+  // const data = await db.invoice.update({
+  //   where: {
+  //     id: formData.get("id") as string,
+  //     userId: session.user?.id,
+  //   },
+  //   data: {
+  //     clientAddress: submission.value.clientAddress,
+  //     clientEmail: submission.value.clientEmail,
+  //     clientName: submission.value.clientName,
+  //     currency: submission.value.currency,
+  //     date: submission.value.date,
+  //     dueDate: submission.value.dueDate,
+  //     fromAddress: submission.value.fromAddress,
+  //     fromEmail: submission.value.fromEmail,
+  //     fromName: submission.value.fromName,
+  //     // invoiceItemDescription: submission.value.invoiceItemDescription,
+  //     // invoiceItemQuantity: submission.value.invoiceItemQuantity,
+  //     // invoiceItemRate: submission.value.invoiceItemRate,
+  //     invoiceName: submission.value.invoiceName,
+  //     invoiceNumber: submission.value.invoiceNumber,
+  //     status: submission.value.status,
+  //     total: submission.value.total,
+  //     note: submission.value.note,
+  //   },
+  // });
 
   const sender = {
     email: "hello@demomailtrap.com",
@@ -138,11 +173,11 @@ export async function editInvoice(prevState: any, formData: FormData) {
 }
 
 export async function DeleteInvoice(invoiceId: string) {
-  const session = await requireUser();
+  const session = await requireUserSession();
 
   const data = await db.invoice.delete({
     where: {
-      userId: session.user?.id,
+      userId: session.id as string,
       id: invoiceId,
     },
   });
@@ -151,11 +186,11 @@ export async function DeleteInvoice(invoiceId: string) {
 }
 
 export async function MarkAsPaidAction(invoiceId: string) {
-  const session = await requireUser();
+  const session = await requireUserSession();
 
   const data = await db.invoice.update({
     where: {
-      userId: session.user?.id,
+      userId: session.id,
       id: invoiceId,
     },
     data: {

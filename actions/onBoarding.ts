@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { DEFAULT_LOGIN_REDIRECT, LOGIN_PAGE } from "@/routes";
 import { onBoardingSchema } from "@/schemas";
 import { OnBoardingType } from "@/types/schemasTypes";
-import { requireUser } from "@/utils/hooks";
+import { requireUserSession } from "@/utils/hooks";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -28,13 +28,13 @@ export const onBoarding = async (formData: OnBoardingType) => {
   let success = false;
   try {
     // Verifica della sessione utente
-    const session = await requireUser();
-    if (!session?.user) {
+    const userSession = await requireUserSession();
+    if (!userSession) {
       // Se la sessione non esiste o l'utente non è presente, redirigi al login
       redirect(LOGIN_PAGE);
     }
 
-    const { id } = session.user;
+    const { id } = userSession;
     // Aggiornamento dei dettagli aziendali nel database
 
     await db.user.update({

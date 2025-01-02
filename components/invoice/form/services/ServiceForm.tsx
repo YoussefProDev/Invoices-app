@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ivaOptions, natureOptions } from "@/data/invoices";
+import { ivaLabels, ivaOptions, natureOptions } from "@/data/invoices";
 import { z } from "zod";
 
 // Stato iniziale del form
@@ -22,6 +23,7 @@ const initialState: Partial<ServiceType> = {
   quantity: 0,
   pricePerUnit: 0,
   totalPrice: 0,
+
   nature: "",
 };
 
@@ -61,7 +63,9 @@ export const ServiceForm = ({
   useEffect(() => {
     const quantity = formData.quantity ?? 0;
     const pricePerUnit = formData.pricePerUnit ?? 0;
-    const ivaRate = formData.ivaRate ?? 0;
+    const ivaRate =
+      ivaOptions.find((ivaOption) => ivaOption.label === formData.ivaRate)
+        ?.value ?? 0;
 
     const basePrice = quantity * pricePerUnit;
     const ivaMultiplier = ivaRate / 100;
@@ -74,7 +78,7 @@ export const ServiceForm = ({
     setFormData((prev) => ({
       ...prev,
       [field]: value,
-      ...(field === "ivaRate" && value !== 0 ? { nature: "" } : {}),
+      ...(field === "ivaRate" && value !== "0%" ? { nature: "" } : {}),
     }));
   };
 
@@ -161,8 +165,8 @@ export const ServiceForm = ({
         <div>
           <Label htmlFor="ivaRate">Aliquota IVA</Label>
           <Select
-            onValueChange={(value) => handleChange("ivaRate", Number(value))}
-            value={formData.ivaRate?.toString() || ""}
+            onValueChange={(value) => handleChange("ivaRate", value)}
+            value={formData.ivaRate}
           >
             <SelectTrigger
               id="ivaRate"
@@ -171,9 +175,9 @@ export const ServiceForm = ({
               <SelectValue placeholder="Seleziona l'aliquota IVA" />
             </SelectTrigger>
             <SelectContent>
-              {ivaOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value.toString()}>
-                  {option.label}
+              {ivaLabels.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -186,7 +190,7 @@ export const ServiceForm = ({
         <div>
           <Label htmlFor="nature">Natura</Label>
           <Select
-            disabled={formData.ivaRate !== 0}
+            disabled={formData.ivaRate !== "0%"}
             onValueChange={(value) => handleChange("nature", value)}
             value={formData.nature || ""}
           >

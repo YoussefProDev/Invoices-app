@@ -1,8 +1,8 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/lib/db";
-import { requireUser } from "@/utils/hooks";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { requireUserSession } from "@/utils/hooks";
+import { formatCurrency, parseDynamicCurrency } from "@/utils/formatCurrency";
 
 async function getData(userId: string) {
   const data = await db.invoice.findMany({
@@ -26,8 +26,8 @@ async function getData(userId: string) {
 }
 
 export async function RecentInvoices() {
-  const session = await requireUser();
-  const data = await getData(session.user?.id as string);
+  const userSession = await requireUserSession();
+  const data = await getData(userSession?.id as string);
 
   return (
     <Card>
@@ -49,8 +49,8 @@ export async function RecentInvoices() {
             <div className="ml-auto font-medium shrink-0">
               +
               {formatCurrency({
-                amount: item.total,
-                currency: item.currency as any,
+                amount: parseDynamicCurrency(item.total),
+                currency: item.currency,
               })}
             </div>
           </div>

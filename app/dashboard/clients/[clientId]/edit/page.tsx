@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { requireUser } from "@/utils/hooks";
+import { requireUserSession } from "@/utils/hooks";
 
 import { redirect } from "next/navigation";
 
@@ -26,12 +26,12 @@ async function Authorize(clientId: string, userId: string) {
 type Params = Promise<{ clientId: string }>;
 
 export default async function EditClientPage({ params }: { params: Params }) {
-  const session = await requireUser();
+  const userSession = await requireUserSession();
   const { clientId } = await params;
 
   const client: ClientWithAddress = await Authorize(
     clientId,
-    session.user?.id as string
+    userSession?.id as string
   );
   return <ClientForm client={client} />;
 }
