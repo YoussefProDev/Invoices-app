@@ -1,12 +1,12 @@
 "use client";
 
-import { ClientWithAddress } from "@/types/dataTypes";
+import { ClientTypeWithId } from "@/types/schemasTypes";
 import { Invoice } from "@prisma/client";
 
 import React, { createContext, useContext } from "react";
 
 interface dataContextProps {
-  clients: ClientWithAddress[];
+  clients: ClientTypeWithId[];
   invoices: Invoice[];
 }
 const dataContext = createContext<dataContextProps>({
@@ -22,7 +22,7 @@ export const DataProvider = ({
   invoices,
 }: {
   children: React.ReactNode;
-  clients: ClientWithAddress[];
+  clients: ClientTypeWithId[];
   invoices: Invoice[];
 }) => {
   return (

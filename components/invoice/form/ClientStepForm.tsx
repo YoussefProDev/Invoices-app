@@ -11,13 +11,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ClientList } from "@/components/client/ClientList";
-import { ClientWithAddress, FieldsType } from "@/types/dataTypes";
+import { FieldsType } from "@/types/dataTypes";
 import { Client } from "@prisma/client";
+import { ClientTypeWithId } from "@/types/schemasTypes";
 
 const ClientStepForm = () => {
   const [openDialog, setOpenDialog] = useState(false);
-  const [client, setClient] = useState<ClientWithAddress | undefined>();
-  const fields: FieldsType<Client> = [
+  const [client, setClient] = useState<ClientTypeWithId>();
+  const fields: FieldsType<ClientTypeWithId> = [
     { label: "Client Name", key: "name", sticky: true },
     {
       label: "Email",
@@ -30,7 +31,7 @@ const ClientStepForm = () => {
       format: (value: string | null) => value || "N/A",
     },
   ];
-  const updateClientFields = (clientRow: ClientWithAddress) => {
+  const updateClientFields = (clientRow: ClientTypeWithId) => {
     setClient(clientRow);
     setOpenDialog(false);
   };

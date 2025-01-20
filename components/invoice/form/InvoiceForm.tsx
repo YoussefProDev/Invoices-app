@@ -188,6 +188,9 @@ const InvoiceForm: React.FC = () => {
                 ))}
               </div>
               <FormError message={error} />
+              <CardFooter>
+                <SubmitButton text="Submit Invoice" isPending={false} />
+              </CardFooter>
             </form>
           </FormProvider>
         </div>

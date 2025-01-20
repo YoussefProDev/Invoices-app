@@ -14,15 +14,14 @@ import {
 import { SubmitButton } from "@/components/SubmitButtons";
 
 import { ClientSchema } from "@/schemas";
-import { ClientType } from "@/types/schemasTypes";
+import { ClientType, ClientTypeWithId } from "@/types/schemasTypes";
 
 import { createClient, updateClient } from "@/actions/client";
 import FormError from "@/components/auth/FormError";
-import { ClientWithAddress } from "@/types/dataTypes";
 import { Form } from "@/components/ui/form";
 import ClientPartForm from "../ClientPartForm";
 
-const ClientForm = ({ client }: { client?: ClientWithAddress }) => {
+const ClientForm = ({ client }: { client?: ClientTypeWithId }) => {
   // React Hook Form configuration
   const form = useForm<ClientType>({
     resolver: zodResolver(ClientSchema),

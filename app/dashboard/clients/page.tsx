@@ -8,15 +8,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ClientWithAddress, FieldsType } from "@/types/dataTypes";
+import { FieldsType } from "@/types/dataTypes";
+import { ClientTypeWithId } from "@/types/schemasTypes";
 
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
 const ClientsPage = () => {
-  const fields: FieldsType<ClientWithAddress> = [
-    { label: "Client Name", key: "name", sticky: true },
+  const fields: FieldsType<ClientTypeWithId> = [
+    {
+      label: "Client Name",
+      key: "name",
+      sticky: true,
+    },
     {
       label: "Email",
       key: "email",

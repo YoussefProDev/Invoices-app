@@ -69,7 +69,7 @@ const LoginForm = () => {
                       {...field}
                       type="email"
                       placeholder="yourmail@example.com"
-                      className="autofillInput"
+                      className="bg-white border-black "
                     />
                   </FormControl>
                   <FormMessage />
@@ -88,6 +88,7 @@ const LoginForm = () => {
                       {...field}
                       type="password"
                       placeholder="******"
+                      className=""
                     />
                   </FormControl>
                   <Button

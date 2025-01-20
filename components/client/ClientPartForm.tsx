@@ -10,14 +10,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { useFormContext } from "react-hook-form";
 import AddressForm from "@/components/AddressForm";
-import { ClientWithAddress } from "@/types/dataTypes";
+import { ClientTypeWithId } from "@/types/schemasTypes";
 
 export const ClientPartForm = ({
   campo,
   client,
 }: {
   campo?: string;
-  client?: ClientWithAddress;
+  client?: ClientTypeWithId;
 }) => {
   campo = campo ? `${campo}.` : "";
   const { control, setValue } = useFormContext();
@@ -29,10 +29,10 @@ export const ClientPartForm = ({
       setValue(`${campo}codiceDestinatario`, client.codiceDestinatario || "");
       setValue(`${campo}pecDestinatario`, client.pecDestinatario || "");
       setValue(`${campo}codiceFiscale`, client.codiceFiscale || "");
-      setValue(`${campo}address.street`, client.address?.street || "");
-      setValue(`${campo}address.cap`, client.address?.cap || "");
-      setValue(`${campo}address.comune`, client.address?.comune || "");
-      setValue(`${campo}address.provincia`, client.address?.provincia || "");
+      setValue(`${campo}address.street`, client.address.street || "");
+      setValue(`${campo}address.cap`, client.address.cap || "");
+      setValue(`${campo}address.comune`, client.address.comune || "");
+      setValue(`${campo}address.provincia`, client.address.provincia || "");
     }
   }, [client, setValue, campo]);
   return (

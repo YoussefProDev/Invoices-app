@@ -5,6 +5,7 @@ import { DEFAULT_LOGIN_REDIRECT, LOGIN_PAGE } from "@/routes";
 import { onBoardingSchema } from "@/schemas";
 import { OnBoardingType } from "@/types/schemasTypes";
 import { requireUserSession } from "@/utils/hooks";
+import { addressMapper } from "@/utils/mappers/address";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -18,13 +19,8 @@ export const onBoarding = async (formData: OnBoardingType) => {
     };
   }
 
-  const {
-    companyName,
-    pec,
-    taxCode,
-    vatNumber,
-    address: { cap, comune, provincia, street },
-  } = validatedFields.data;
+  const { companyName, pec, taxCode, vatNumber, address } =
+    validatedFields.data;
   let success = false;
   try {
     // Verifica della sessione utente
@@ -36,7 +32,7 @@ export const onBoarding = async (formData: OnBoardingType) => {
 
     const { id } = userSession;
     // Aggiornamento dei dettagli aziendali nel database
-
+    const userAddress = addressMapper(address);
     await db.user.update({
       where: { id },
       data: {
@@ -47,28 +43,14 @@ export const onBoarding = async (formData: OnBoardingType) => {
               pec,
               taxCode,
               vatNumber,
-              address: {
-                create: {
-                  cap,
-                  comune,
-                  provincia,
-                  street,
-                },
-              },
+              address: userAddress,
             },
             update: {
               companyName,
               pec,
               taxCode,
               vatNumber,
-              address: {
-                update: {
-                  cap,
-                  comune,
-                  provincia,
-                  street,
-                },
-              },
+              address: userAddress,
             },
           },
         },

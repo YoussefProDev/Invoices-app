@@ -1,0 +1,101 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+model Client {
+  id            String  @id @default(uuid())
+  name          String
+  codiceFiscale String?
+
+  codiceDestinatario String?
+  pecDestinatario    String?
+  email              String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  address String?
+
+  userId String // Foreign key to User model
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("clients")
+}
+
+model businessDetail {
+  id          Int    @id @default(autoincrement())
+  vatNumber   String @unique
+  taxCode     String @unique
+  companyName String
+  pec         String
+  userId      String @unique
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  address   String?
+}
+
+model Invoice {
+  id     String        @id @default(uuid())
+  total  String
+  status InvoiceStatus
+  date   DateTime
+
+  fromName       String
+  fromEmail      String
+  fromAddress    String
+  clientName     String
+  clientEmail    String?
+  clientAddress  String
+  clientCF       String
+  clientPec      String?
+  currency       String
+  invoiceNumber  Int
+  note           String?
+  paymentDetails PaymentDetails?
+  regimeFiscale  RegimeFiscale
+  invoiceType    InvoiceType
+  services       Service[]
+  year           Int
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+
+  @@unique([invoiceNumber, year]) // Ensures uniqueness of invoice number per year
+}
+
+model Service {
+  id           String    @id @default(cuid())
+  description  String
+  quantity     Int
+  pricePerUnit Int
+  ivaRate      String
+  nature       String?
+  startDate    DateTime?
+  endDate      DateTime?
+  totalPrice   Int // Total price excluding VAT
+  invoiceId    String
+  invoice      Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PaymentDetails {
+  id          String  @id @default(cuid())
+  iban        String?
+  bankName    String?
+  beneficiary String?
+
+  invoiceId String  @unique
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}

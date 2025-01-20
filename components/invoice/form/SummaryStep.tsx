@@ -170,9 +170,6 @@ const InvoiceDetailsSection = ({
         <strong>Status:</strong> {status || "Non specificato"}
       </p>
     </div>
-    <CardFooter>
-      <SubmitButton text="Submit Invoice" isPending={false} />
-    </CardFooter>
   </div>
 );
 

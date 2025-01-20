@@ -2,7 +2,7 @@ import "server-only";
 import { db } from "@/lib/db";
 import { requireUserSession } from "./hooks";
 
-export async function getInvoices(userId: string) {
+export async function getInvoices(userId?: string) {
   const data = await db.invoice.findMany({
     where: {
       userId: userId,

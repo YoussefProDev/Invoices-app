@@ -13,8 +13,7 @@ export const register = async (formData: z.infer<typeof RegisterSchema>) => {
     return { error: "Invalid Credentials" };
   }
 
-  const { firstName, lastName, address, email, password } =
-    validatedFields.data;
+  const { firstName, lastName, email, password } = validatedFields.data;
 
   const existingUser = await getUserByEmail(email);
   if (existingUser) {

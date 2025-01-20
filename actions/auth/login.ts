@@ -13,7 +13,6 @@ import { sendVerifacationEmail } from "@/utils/auth/email";
 import { verifyPassword } from "@/utils/auth/passwordCheck";
 
 export const login = async (formData: z.infer<typeof LoginSchema>) => {
-  console.log("ok");
   const validatedFields = LoginSchema.safeParse(formData);
 
   if (!validatedFields.success) {
@@ -45,16 +44,18 @@ export const login = async (formData: z.infer<typeof LoginSchema>) => {
 
     return { success: "Confirmation email sent" };
   }
+
   const passwordMatch = await verifyPassword(password, existingUser.password);
 
   if (!passwordMatch) return { error: "Invalid Credentials" };
 
   try {
-    await signIn("credentials", {
+    const response = await signIn("credentials", {
       email,
       password,
       redirectTo: DEFAULT_LOGIN_REDIRECT,
     });
+    console.log("ciao", response);
   } catch (error) {
     if (error instanceof AuthError) {
       // console.log("error: ", error.type, error);
@@ -67,7 +68,7 @@ export const login = async (formData: z.infer<typeof LoginSchema>) => {
           return { error: "Something went wrong!" };
       }
     }
-    throw error;
   }
+
   return { success: "Correct Credentials" };
 };

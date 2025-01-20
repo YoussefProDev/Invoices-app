@@ -11,7 +11,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     signIn: LOGIN_PAGE, // Pagina di login personalizzata
     signOut: LOGIN_PAGE, // Pagina di logout personalizzata
     error: ERROR_PAGE, // Pagina di errore personalizzata
-    verifyRequest: NEW_VERIFICATION_PAGE, // Pagina per verificare l'email
+    // verifyRequest: NEW_VERIFICATION_PAGE, // Pagina per verificare l'email
   },
 
   // Eventi di NextAuth

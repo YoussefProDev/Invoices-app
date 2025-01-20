@@ -2,138 +2,370 @@ import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import jsPDF from "jspdf";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { getUserById, getUserSession } from "@/utils/auth/users";
+import { Invoice, User } from "@prisma/client";
+import { format } from "date-fns";
+import { UserWithBusinessDetail } from "@/types/schemasTypes";
 
-// export async function GET(
-//   request: Request,
-//   {
-//     params,
-//   }: {
-//     params: Promise<{ invoiceId: string }>;
-//   }
-// ) {
-//   const { invoiceId } = await params;
+// Utility function to format dates
+function formatDate(date: Date): string {
+  return format(date, "dd.MM.yy");
+}
 
-//   const data = await db.invoice.findUnique({
-//     where: {
-//       id: invoiceId,
-//     },
-//     select: {
-//       invoiceName: true,
-//       invoiceNumber: true,
-//       currency: true,
-//       fromName: true,
-//       fromEmail: true,
-//       fromAddress: true,
-//       clientName: true,
-//       clientAddress: true,
-//       clientEmail: true,
-//       date: true,
-//       dueDate: true,
-//       // invoiceItemDescription: true,
-//       // invoiceItemQuantity: true,
-//       // invoiceItemRate: true,
-//       total: true,
-//       note: true,
-//     },
-//   });
+// PDF Generator class to encapsulate PDF generation logic
+class PDFGenerator {
+  private pdf: jsPDF;
+  private margin: number;
+  private y: number;
+  private rowHeight: number;
+  private headerFont: string;
+  private bodyFont: string;
+  private fontSizeHeader: number;
+  private fontSizeBody: number;
 
-//   if (!data) {
-//     return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
-//   }
+  constructor() {
+    this.pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    this.margin = 20;
+    this.y = this.margin;
+    this.rowHeight = 6;
+    this.headerFont = "helvetica";
+    this.bodyFont = "helvetica";
+    this.fontSizeHeader = 12;
+    this.fontSizeBody = 10;
+  }
 
-//   const pdf = new jsPDF({
-//     orientation: "portrait",
-//     unit: "mm",
-//     format: "a4",
-//   });
+  // Method to add styled text to the PDF
+  addStyledText(
+    text: string,
+    x: number,
+    y: number,
+    font: string,
+    style: string,
+    size: number
+  ): void {
+    this.pdf.setFont(font, style);
+    this.pdf.setFontSize(size);
+    this.pdf.text(text, x, y);
+  }
 
-//   // set font
-//   pdf.setFont("helvetica");
+  // Method to add company details to the PDF
+  addCompanyDetails(user: UserWithBusinessDetail): void {
+    this.addStyledText(
+      user.businessDetail?.companyName || "",
+      this.margin,
+      this.y,
+      this.headerFont,
+      "bold",
+      this.fontSizeHeader
+    );
+    this.y += this.rowHeight;
 
-//   //set header
-//   pdf.setFontSize(24);
-//   pdf.text(data.invoiceName, 20, 20);
+    if (user.businessDetail) {
+      this.addStyledText(
+        `${user.businessDetail.address}`,
+        this.margin,
+        this.y,
+        this.bodyFont,
+        "normal",
+        this.fontSizeBody
+      );
+      this.y += this.rowHeight;
 
-//   // From Section
-//   pdf.setFontSize(12);
-//   pdf.text("From", 20, 40);
-//   pdf.setFontSize(10);
-//   pdf.text([data.fromName, data.fromEmail, data.fromAddress], 20, 45);
+      this.addStyledText(
+        `Partita IVA: ${user.businessDetail.vatNumber} - Cod. Fisc: ${user.businessDetail.taxCode}`,
+        this.margin,
+        this.y,
+        this.bodyFont,
+        "normal",
+        this.fontSizeBody
+      );
+      this.y += this.rowHeight * 2;
+    }
+  }
 
-//   // Client Section
-//   pdf.setFontSize(12);
-//   pdf.text("Bill to", 20, 70);
-//   pdf.setFontSize(10);
-//   pdf.text([data.clientName, data.clientEmail, data.clientAddress], 20, 75);
+  // Method to add invoice details to the PDF
+  addInvoiceDetails(data: Invoice): void {
+    this.addStyledText(
+      `Data: ${formatDate(new Date(data.date))} CLIENTE`,
+      this.margin,
+      this.y,
+      this.headerFont,
+      "bold",
+      this.fontSizeHeader
+    );
+    this.y += this.rowHeight;
 
-//   // Invoice details
-//   pdf.setFontSize(10);
-//   pdf.text(`Invoice Number: #${data.invoiceNumber}`, 120, 40);
-//   pdf.text(
-//     `Date: ${new Intl.DateTimeFormat("en-US", {
-//       dateStyle: "long",
-//     }).format(data.date)}`,
-//     120,
-//     45
-//   );
-//   pdf.text(`Due Date: Net ${data.dueDate}`, 120, 50);
+    this.addStyledText(
+      `FATTURA ${data.invoiceNumber} ${data.clientName}`,
+      this.margin,
+      this.y,
+      this.headerFont,
+      "bold",
+      this.fontSizeHeader
+    );
+    this.y += this.rowHeight;
 
-//   // Item table header
-//   pdf.setFontSize(10);
-//   pdf.setFont("helvetica", "bold");
-//   pdf.text("Description", 20, 100);
-//   pdf.text("Quantity", 100, 100);
-//   pdf.text("Rate", 130, 100);
-//   pdf.text("Total", 160, 100);
+    this.addStyledText(
+      `${data.clientAddress}`,
+      this.margin,
+      this.y,
+      this.bodyFont,
+      "normal",
+      this.fontSizeBody
+    );
+    this.y += this.rowHeight;
 
-//   // draw header line
-//   pdf.line(20, 102, 190, 102);
+    this.addStyledText(
+      `Pi: ${data.clientPec} - CF: ${data.clientCF}`,
+      this.margin,
+      this.y,
+      this.bodyFont,
+      "normal",
+      this.fontSizeBody
+    );
+    this.y += this.rowHeight * 2;
+  }
 
-//   // Item Details
-//   pdf.setFont("helvetica", "normal");
-//   // pdf.text(data.invoiceItemDescription, 20, 110);
-//   // pdf.text(data.invoiceItemQuantity.toString(), 100, 110);
-//   // pdf.text(
-//   //   formatCurrency({
-//   //     amount: data.invoiceItemRate,
-//   //     currency: data.currency as any,
-//   //   }),
-//   //   130,
-//   //   110
-//   // );
-//   pdf.text(
-//     formatCurrency({ amount: data.total, currency: data.currency as any }),
-//     160,
-//     110
-//   );
+  // Method to add services table to the PDF
+  addServicesTable(services: any[]): void {
+    this.addStyledText(
+      "DESCRIZIONE MERCE",
+      this.margin,
+      this.y,
+      this.headerFont,
+      "bold",
+      this.fontSizeBody
+    );
+    this.addStyledText(
+      "ONT",
+      this.margin + 70,
+      this.y,
+      this.headerFont,
+      "bold",
+      this.fontSizeBody
+    );
+    this.addStyledText(
+      "IMPORTO UNIT.",
+      this.margin + 90,
+      this.y,
+      this.headerFont,
+      "bold",
+      this.fontSizeBody
+    );
+    this.addStyledText(
+      "IMPORTO TOT",
+      this.margin + 110,
+      this.y,
+      this.headerFont,
+      "bold",
+      this.fontSizeBody
+    );
+    this.addStyledText(
+      "% IVA",
+      this.margin + 130,
+      this.y,
+      this.headerFont,
+      "bold",
+      this.fontSizeBody
+    );
+    this.y += this.rowHeight;
 
-//   // Total Section
-//   pdf.line(20, 115, 190, 115);
-//   pdf.setFont("helvetica", "bold");
-//   pdf.text(`Total (${data.currency})`, 130, 130);
-//   pdf.text(
-//     formatCurrency({ amount: data.total, currency: data.currency as any }),
-//     160,
-//     130
-//   );
+    services.forEach((service) => {
+      const imponibile = service.quantity * service.pricePerUnit;
+      const importoTot = imponibile.toFixed(2).replace(".", ",");
+      this.y += this.rowHeight;
+      this.addStyledText(
+        service.description,
+        this.margin,
+        this.y,
+        this.bodyFont,
+        "normal",
+        this.fontSizeBody
+      );
+      this.addStyledText(
+        service.quantity.toString(),
+        this.margin + 70,
+        this.y,
+        this.bodyFont,
+        "normal",
+        this.fontSizeBody
+      );
+      this.addStyledText(
+        service.pricePerUnit.toFixed(2).replace(".", ","),
+        this.margin + 90,
+        this.y,
+        this.bodyFont,
+        "normal",
+        this.fontSizeBody
+      );
+      this.addStyledText(
+        importoTot,
+        this.margin + 110,
+        this.y,
+        this.bodyFont,
+        "normal",
+        this.fontSizeBody
+      );
+      this.addStyledText(
+        service.ivaRate,
+        this.margin + 130,
+        this.y,
+        this.bodyFont,
+        "normal",
+        this.fontSizeBody
+      );
+    });
+    this.y += this.rowHeight * 2;
+  }
 
-//   //Additional Note
-//   if (data.note) {
-//     pdf.setFont("helvetica", "normal");
-//     pdf.setFontSize(10);
-//     pdf.text("Note:", 20, 150);
-//     pdf.text(data.note, 20, 155);
-//   }
+  // Method to add summary table to the PDF
+  addSummaryTable(services: any[]): void {
+    const vatGroups = new Map<
+      string,
+      { imponibile: number; imposta: number }
+    >();
 
-//   // generate pdf as buffer
-//   const pdfBuffer = Buffer.from(pdf.output("arraybuffer"));
+    services.forEach((service) => {
+      const rate = service.ivaRate;
+      const imponibile = service.quantity * service.pricePerUnit;
+      const imposta = imponibile * (parseFloat(rate) / 100);
 
-//   //return pdf as download
+      if (vatGroups.has(rate)) {
+        const group = vatGroups.get(rate);
+        if (group) {
+          group.imponibile += imponibile;
+          group.imposta += imposta;
+        }
+      } else {
+        vatGroups.set(rate, { imponibile, imposta });
+      }
+    });
 
-//   return new NextResponse(pdfBuffer, {
-//     headers: {
-//       "Content-Type": "application/pdf",
-//       "Content-Disposition": "inline",
-//     },
-//   });
-// }
+    this.addStyledText(
+      "% IVA",
+      this.margin,
+      this.y,
+      this.headerFont,
+      "bold",
+      this.fontSizeBody
+    );
+    this.addStyledText(
+      "IMPONIBILE",
+      this.margin + 50,
+      this.y,
+      this.headerFont,
+      "bold",
+      this.fontSizeBody
+    );
+    this.addStyledText(
+      "IMPOSTA",
+      this.margin + 100,
+      this.y,
+      this.headerFont,
+      "bold",
+      this.fontSizeBody
+    );
+    this.y += this.rowHeight;
+
+    vatGroups.forEach((group, rate) => {
+      this.y += this.rowHeight;
+      this.addStyledText(
+        rate,
+        this.margin,
+        this.y,
+        this.bodyFont,
+        "normal",
+        this.fontSizeBody
+      );
+      this.addStyledText(
+        group.imponibile.toFixed(2).replace(".", ","),
+        this.margin + 50,
+        this.y,
+        this.bodyFont,
+        "normal",
+        this.fontSizeBody
+      );
+      this.addStyledText(
+        group.imposta.toFixed(2).replace(".", ","),
+        this.margin + 100,
+        this.y,
+        this.bodyFont,
+        "normal",
+        this.fontSizeBody
+      );
+    });
+    this.y += this.rowHeight * 2;
+  }
+
+  // Method to add notes section to the PDF
+  addNotesSection(): void {
+    this.addStyledText(
+      "NOTE",
+      this.margin,
+      this.y,
+      this.headerFont,
+      "bold",
+      this.fontSizeHeader
+    );
+    this.y += this.rowHeight * 2;
+
+    this.addStyledText(
+      "BONIFICO BANCARIO SU IBAN:",
+      this.margin,
+      this.y,
+      this.bodyFont,
+      "normal",
+      this.fontSizeBody
+    );
+    this.y += this.rowHeight;
+  }
+
+  // Method to get the PDF buffer
+  getPDFBuffer(): ArrayBuffer {
+    return this.pdf.output("arraybuffer");
+  }
+}
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ invoiceId: string }> }
+) {
+  const { invoiceId } = await params;
+  const userId = await getUserSession();
+
+  if (!userId) {
+    return NextResponse.json(
+      { error: "User session not found" },
+      { status: 401 }
+    );
+  }
+
+  const user = await getUserById(userId);
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  const data = await db.invoice.findUnique({
+    where: { id: invoiceId },
+    include: { services: true },
+  });
+
+  if (!data) {
+    return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+  }
+
+  const pdfGenerator = new PDFGenerator();
+  pdfGenerator.addCompanyDetails(user);
+  pdfGenerator.addInvoiceDetails(data);
+  pdfGenerator.addServicesTable(data.services);
+  pdfGenerator.addSummaryTable(data.services);
+  pdfGenerator.addNotesSection();
+
+  const pdfBuffer = pdfGenerator.getPDFBuffer();
+  return new NextResponse(pdfBuffer, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `inline; filename=invoice_${data.invoiceNumber}.pdf`,
+    },
+  });
+}

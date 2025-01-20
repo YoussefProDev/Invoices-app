@@ -16,24 +16,24 @@ async function getInvoices(userId: string) {
     where: {
       status: "PAID",
       userId: userId,
-      createdAt: {
+      date: {
         lte: new Date(),
-        gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        gte: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000),
       },
     },
     select: {
-      createdAt: true,
+      date: true,
       total: true,
     },
     orderBy: {
-      createdAt: "asc",
+      date: "asc",
     },
   });
 
   // Group and aggregate data by date
   const aggregatedData = rawData.reduce(
     (acc: { [key: string]: number }, curr) => {
-      const date = new Date(curr.createdAt).toLocaleDateString("en-US", {
+      const date = new Date(curr.date).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
       });
@@ -70,7 +70,7 @@ export async function InvoiceGraph() {
       <CardHeader>
         <CardTitle>Paid Invoices</CardTitle>
         <CardDescription>
-          Invoices which have been paid in the last 30 days.
+          Invoices which have been paid in the last 6 Month.
         </CardDescription>
       </CardHeader>
       <CardContent className="w-full overflow-x-auto">

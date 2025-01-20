@@ -46,9 +46,6 @@ export const createInvoice = async (invoiceForm: InvoiceType) => {
       error: "Invoice number must be unique for the year!",
     };
   }
-  const userAddress = addressMapper(
-    user?.businessDetail?.address as AddressType
-  );
 
   const clientAddress = addressMapper(client.address);
 
@@ -56,10 +53,12 @@ export const createInvoice = async (invoiceForm: InvoiceType) => {
     data: {
       clientEmail: client.email as string,
       clientName: client.name,
+      clientCF: client.codiceFiscale,
+      clientPec: client.pecDestinatario,
+      clientAddress,
       currency,
       date,
-      clientAddress,
-      fromAddress: userAddress,
+      fromAddress: user?.businessDetail?.address as string,
       fromEmail: user?.email as string,
       fromName: `${user?.firstName} ${user?.lastName}`,
       invoiceType,
@@ -81,8 +80,8 @@ export const createInvoice = async (invoiceForm: InvoiceType) => {
   });
 
   const sender = {
-    email: "hello@demomailtrap.com",
-    name: "Jan Marshal",
+    email: client.email,
+    name: client.name,
   };
 
   // resend.emails.send({

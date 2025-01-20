@@ -3,9 +3,10 @@ import { DynamicTable } from "@/components/DynamicTable";
 import { ClientActions } from "./ClientActions";
 import { useData } from "@/providers/DataProvider";
 
-import { ClientWithAddress, FieldsType } from "@/types/dataTypes";
+import { FieldsType } from "@/types/dataTypes";
+import { ClientTypeWithId } from "@/types/schemasTypes";
 
-const InitialClientFields: FieldsType<ClientWithAddress> = [
+const InitialClientFields: FieldsType<ClientTypeWithId> = [
   { label: "Client Name", key: "name", sticky: true },
   {
     label: "Email",
@@ -17,24 +18,24 @@ const InitialClientFields: FieldsType<ClientWithAddress> = [
     key: "pecDestinatario",
     format: (value: string | null) => value || "N/A",
   },
-  {
-    label: "Created At",
-    key: "createdAt",
-    format: (value: Date) =>
-      new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(value),
-  },
+  // {
+  //   label: "Created At",
+  //   key: "createdAt",
+  //   format: (value: Date) =>
+  //     new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(value),
+  // },
 ];
 export function ClientList({
   fields = InitialClientFields,
   onClick,
 }: {
-  fields?: FieldsType<ClientWithAddress>;
-  onClick?: (client: ClientWithAddress) => void;
+  fields?: FieldsType<ClientTypeWithId>;
+  onClick?: (client: ClientTypeWithId) => void;
 }) {
   const { clients } = useData();
 
   return (
-    <DynamicTable<ClientWithAddress>
+    <DynamicTable<ClientTypeWithId>
       data={clients}
       fields={fields}
       renderActions={(client) => <ClientActions id={client.id} />}

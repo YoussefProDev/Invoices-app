@@ -29,7 +29,7 @@ const AddressForm = ({ campo }: { campo: string }) => {
                   disabled={isPending}
                   {...field}
                   type="text"
-                  placeholder="Main Street"
+                  placeholder="Via Marco Rossi 13"
                   value={field.value}
                   onChange={field.onChange}
                 />
@@ -79,6 +79,7 @@ const AddressForm = ({ campo }: { campo: string }) => {
                   placeholder="Milano"
                   value={field.value}
                   onChange={field.onChange}
+                  className="capitalize"
                 />
               </FormControl>
               <div className="h-6 text-red-500 text-sm">

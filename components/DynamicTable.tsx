@@ -1,3 +1,5 @@
+"use client";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -6,17 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { EmptyState } from "@/components/EmptyState";
 import { DynamicTableProps } from "@/types/dataTypes";
-
 import { cn } from "@/lib/utils";
 
-/**
- * A reusable and dynamic table component to display a list of items.
- * @template T - The type of the data objects being displayed in the table.
- * @param {DynamicTableProps<T>} props - The props for the table component.
- */
 export function DynamicTable<T>({
   data,
   fields,
@@ -25,6 +20,37 @@ export function DynamicTable<T>({
   customComponent,
   onClick,
 }: DynamicTableProps<T>): JSX.Element {
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof T;
+    direction: "ascending" | "descending";
+  } | null>(null);
+
+  const sortedData = React.useMemo(() => {
+    if (!sortConfig) return data;
+
+    return [...data].sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === "ascending" ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === "ascending" ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [data, sortConfig]);
+
+  const requestSort = (key: keyof T) => {
+    let direction: "ascending" | "descending" = "ascending";
+    if (
+      sortConfig &&
+      sortConfig.key === key &&
+      sortConfig.direction === "ascending"
+    ) {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
+
   return (
     <>
       {data.length === 0 ? (
@@ -38,12 +64,18 @@ export function DynamicTable<T>({
                   <TableHead
                     key={String(field.key)}
                     className={cn(
-                      field.className,
-                      field.sticky && "sticky left-0 bg-white z-10 shadow-sm"
+                      field.sticky && "sticky left-0 bg-white z-10 shadow-sm",
+                      field.className
                     )}
                     style={field.style || { minWidth: "100px" }}
+                    onClick={() => requestSort(field.key as keyof T)}
                   >
                     {field.label}
+                    {sortConfig && sortConfig.key === field.key && (
+                      <span>
+                        {sortConfig.direction === "ascending" ? " ▲" : " ▼"}
+                      </span>
+                    )}
                   </TableHead>
                 ))}
                 {renderActions && (
@@ -52,7 +84,7 @@ export function DynamicTable<T>({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((item, index) => (
+              {sortedData.map((item, index) => (
                 <TableRow
                   key={index}
                   onClick={() => {
@@ -63,9 +95,10 @@ export function DynamicTable<T>({
                     <TableCell
                       key={String(field.key)}
                       className={cn(
-                        field.className,
-                        field.sticky && "sticky left-0 bg-white z-10 shadow-sm"
+                        field.sticky && "sticky left-0 bg-white z-10 shadow-sm",
+                        field.className
                       )}
+                      style={field.style || { minWidth: "100px" }}
                     >
                       {field.format
                         ? field.format(item[field.key], item)

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { ClientSchema } from "@/schemas";
 import { ClientType } from "@/types/schemasTypes";
 import { getUserSession } from "@/utils/auth/users";
+import { addressMapper } from "@/utils/mappers/address";
 import { revalidatePath } from "next/cache";
 
 // Function to create a client
@@ -27,7 +28,7 @@ export const createClient = async (clientForm: ClientType) => {
       address,
       codiceFiscale,
     } = validatedFields.data;
-
+    const clientAddress = addressMapper(address);
     const client = await db.client.create({
       data: {
         name,
@@ -38,11 +39,8 @@ export const createClient = async (clientForm: ClientType) => {
         user: {
           connect: { id: userId },
         },
-        address: {
-          create: { ...address },
-        },
+        address: clientAddress,
       },
-      include: { address: true },
     });
 
     return { data: client };
@@ -74,6 +72,7 @@ export const updateClient = async (clientId: string, formData: ClientType) => {
       address,
       codiceFiscale,
     } = validatedFields.data;
+    const clientAddress = addressMapper(address);
     const client = await db.client.update({
       where: { id: clientId },
       data: {
@@ -82,8 +81,11 @@ export const updateClient = async (clientId: string, formData: ClientType) => {
         pecDestinatario,
         codiceFiscale,
         email,
-        address: {
-          update: { ...address },
+        address: clientAddress,
+        user: {
+          connect: {
+            id: userId,
+          },
         },
       },
     });

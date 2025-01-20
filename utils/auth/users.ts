@@ -1,6 +1,7 @@
 // import "server-only";
 import { db } from "@/lib/db";
 import { requireUserSession } from "../hooks";
+import { UserWithBusinessDetail } from "@/types/schemasTypes";
 
 //User
 export const getUserByEmail = async (email: string) => {
@@ -10,11 +11,7 @@ export const getUserByEmail = async (email: string) => {
         email,
       },
       include: {
-        businessDetail: {
-          include: {
-            address: true,
-          },
-        },
+        businessDetail: true,
       },
     });
     if (!user) {
@@ -26,22 +23,35 @@ export const getUserByEmail = async (email: string) => {
   }
 };
 
-export const getUserById = async (id?: string) => {
+export const getUserById = async (
+  id?: string
+): Promise<UserWithBusinessDetail | null> => {
   try {
+    if (!id) {
+      // If no ID is provided, redirect to the login page
+      await requireUserSession();
+      return null;
+    }
+
     const user = await db.user.findUnique({
       where: {
         id,
       },
       include: {
-        businessDetail: {
-          include: {
-            address: true,
-          },
-        },
+        businessDetail: true,
       },
     });
+
+    if (!user) {
+      // If user is not found, redirect to the login page
+      await requireUserSession();
+      return null;
+    }
+
     return user;
   } catch (error) {
+    // In case of any error, redirect to the login page
+    await requireUserSession();
     return null;
   }
 };

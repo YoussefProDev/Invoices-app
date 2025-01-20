@@ -29,7 +29,7 @@ export function InvoiceList() {
     },
     {
       label: "Date",
-      key: "createdAt",
+      key: "date",
       format: (value) =>
         new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(value),
     },

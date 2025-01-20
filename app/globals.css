@@ -97,10 +97,9 @@ body {
 }
 
 @layer components {
-  .autofillInput {
-    border: 1px solid black;
-    -webkit-text-fill-color: black;
-    box-shadow: 0 0 0px 1000px white inset;
-    transition: background-color 5000s ease-in-out 0s;
+  .Auth input,
+  textarea,
+  select {
+    @apply bg-white border-black text-black transition-colors;
   }
 }

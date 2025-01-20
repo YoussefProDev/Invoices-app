@@ -33,7 +33,6 @@ const RegisterForm = () => {
     defaultValues: {
       firstName: "",
       lastName: "",
-      address: "",
       email: "",
       password: "",
     },
@@ -100,25 +99,6 @@ const RegisterForm = () => {
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address:</FormLabel>
-
-                  <FormControl>
-                    <Input
-                      disabled={isPending}
-                      {...field}
-                      type="text"
-                      placeholder="Chad street 123"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="email"
