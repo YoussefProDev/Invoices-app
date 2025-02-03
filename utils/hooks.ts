@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { LOGIN_PAGE } from "@/routes";
+import { DEFAULT_LOGIN_REDIRECT, LOGIN_PAGE, ONBOARDING_PAGE } from "@/routes";
 import { redirect } from "next/navigation";
 import { getUserById } from "./auth/users";
 

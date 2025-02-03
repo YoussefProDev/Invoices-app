@@ -24,7 +24,7 @@ export const viewport = {
   userScalable: false,
   width: "device-width",
 };
-
+// export const runtime = 'edge' // 'nodejs' (default) | 'edge'
 export default function RootLayout({
   children,
 }: Readonly<{

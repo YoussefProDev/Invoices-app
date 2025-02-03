@@ -14,7 +14,11 @@ export default {
         email: {},
         password: {},
       },
-      authorize: async (credentials) => {
+      authorize: async (data, req) => {
+        const credentials = {
+          email: data.email,
+          password: data.password,
+        };
         const validatedFields = LoginSchema.safeParse(credentials);
         if (validatedFields.success) {
           const { email, password } = validatedFields.data;

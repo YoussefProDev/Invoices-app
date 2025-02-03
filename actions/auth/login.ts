@@ -68,6 +68,7 @@ export const login = async (formData: z.infer<typeof LoginSchema>) => {
           return { error: "Something went wrong!" };
       }
     }
+    throw error;
   }
 
   return { success: "Correct Credentials" };
